@@ -18,7 +18,6 @@ void settings()
 void setup() {
   bkg = loadImage("images/background.png");
   player = loadImage("images/crab.png");
-  goldfish = loadImage("images/goldfish.png");
   bullet = loadImage("images/claw.png");
   p.setPos(new Vec2(325,325));
 }
@@ -26,25 +25,36 @@ void setup() {
 
 
 public void spawnEnemy(){
-  enemies.add(new enemy(random(700), random(700)));
-}
+  
+ float a = random(1);
+  
+  if(a<.5f){ 
+    enemies.add(new enemy(random(700), random(700)));
+ }
+  else
+  { 
+     enemies.add(new squid(random(700), random(700)));
+     
+  } 
+ 
+} 
 
 public void update(){
   p.update();
-  while(enemies.size() <10){
+  while(enemies.size() <9){
   spawnEnemy();
   }
   if(enemies.size() >0){
   for(int i = 0; i< enemies.size(); i ++){
       Vec2 pos = enemies.get(i).getPos(); 
-      if(pos.x >screenX ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds, if out of screen bounds then negate direction
+      float rad = enemies.get(i).getRadius();
+      if(pos.x >screenX - rad*2 ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds, if out of screen bounds then negate direction
       {
         enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
       enemies.get(i).flipImage();
       }
-     
-    
   enemies.get(i).update();
+  print("img  issss " + enemies.get(i).getImage()+ " \n");
   }
   }
   if(bullets.size() >0){  //each update check if bullet has died or is off screen.
@@ -56,7 +66,8 @@ public void update(){
     else
     {
       Vec2 pos = bullets.get(i).getPos(); 
-      if(pos.x >screenX ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds
+      
+      if(pos.x >screenX  ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds
       {
         bullets.remove(i);
       }

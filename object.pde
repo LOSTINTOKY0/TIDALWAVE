@@ -1,7 +1,7 @@
 public class object //base class for everything
 {
-  Vec2 vel;
-  Vec2 pos;
+ protected Vec2 vel;
+ protected Vec2 pos;
  float radius; //for collisions, need hitbox
  boolean alive;
  float health;
