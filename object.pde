@@ -13,6 +13,7 @@ public class object //base class for everything
    radius = 3;
    health = 0; //base health, 0 means can only take one hit
    img = "images/goldfish.png"; //default image
+   alive = true;
   }
   
   public void update(){
@@ -45,6 +46,9 @@ public class object //base class for everything
   public String getImage() {return img;} //for future classes when we want to change the image
   public Vec2 getPos(){return pos;}
   public void setPos(Vec2 v){pos = v;}
+  public void setPos(float x, float y){pos.x = x; pos.y = y;}
+  public Vec2 getVel(){return vel;}
+  public void setVel(Vec2 v){vel = v;}
   
  
     

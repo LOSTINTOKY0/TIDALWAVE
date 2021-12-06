@@ -28,14 +28,11 @@ void setup() {
 
 
 public void update(){
-  count++;
-  if(count%100 == 0){
-    bullets.add(p.fire()); //adds a lot of bullets for shits and giggles but should be added elswhere, for testing purposes
-  }
+  p.update();
   if(bullets.size() >0){  //each update check if bullet has died or is off screen.
   for(int i = 0; i< bullets.size(); i ++)
   {
-    if(bullets.get(i).dead == true){
+    if(bullets.get(i).alive != true){
       bullets.remove(i);
     }
     else
@@ -65,8 +62,32 @@ void draw() {
   image(goldfish, 450, 500);
   for(int i = 0; i <bullets.size(); i++){
     image(bullet, bullets.get(i).pos.x, bullets.get(i).pos.y);
-  }
+   }
   for(int i = 0; i <enemies.size(); i++){
     image(goldfish, enemies.get(i).pos.x, enemies.get(i).pos.y);
   }
 }
+
+void keyPressed() {
+ /* Vec2 pos = p.getPos();
+  Vec2 vel = p.getVel();
+    if(key == 'w')
+    {
+    p.setPos(pos.x, pos.y - vel.y);
+    }
+    if(key == 's')
+    {
+      p.setPos(pos.x, pos.y + vel.y);
+    }
+    if(key == 'a')
+    {
+      p.setPos(pos.x - vel.x, pos.y );
+    }
+     if(key == 'd')
+    {
+      p.setPos(pos.x +vel.x, pos.y );
+    }*/
+    if(keyCode == ' '){
+      bullets.add(p.fire());
+    }
+    }

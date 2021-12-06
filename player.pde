@@ -10,8 +10,14 @@ public class player extends object{
     frame = 1;   //start frame 
     health = 3; //default life number
     isInvincible = false; //for powerup later on
-    vel = new Vec2(3,3);  //base velocity is 3 pix
+    vel = new Vec2(15,15);  //base velocity is 3 pix
+    pos = new Vec2(mouseX-16*3,mouseY-16*3);
     
+  }
+  
+  public void update(){
+    pos.x = mouseX-16*3;
+     pos.y= mouseY-16*3;
   }
   public void updateFrame()
   {
@@ -19,6 +25,8 @@ public class player extends object{
   }//not super important yet
   public bullet fire()
   {
+    
+    print("fired bullet!!\n");
     //create bullet(s?) from angle of crab claw(s)
     bullet b = new bullet(pos.x+72, pos.y+21); //offset so it fires from right claw
     return b;

@@ -8,7 +8,7 @@
   aggression = .5f; //base agression
   vel = new Vec2(2,2);
   radius = 4;
-  img =  loadImage("images/goldfish.png"); //default enemy image;
+  img ="images/goldfish.png"; //default enemy image;
   }
 
 }
