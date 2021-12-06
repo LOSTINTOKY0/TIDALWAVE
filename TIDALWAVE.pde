@@ -25,10 +25,28 @@ void setup() {
 
 
 
-
+public void spawnEnemy(){
+  enemies.add(new enemy(random(700), random(700)));
+}
 
 public void update(){
   p.update();
+  while(enemies.size() <10){
+  spawnEnemy();
+  }
+  if(enemies.size() >0){
+  for(int i = 0; i< enemies.size(); i ++){
+      Vec2 pos = enemies.get(i).getPos(); 
+      if(pos.x >screenX ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds, if out of screen bounds then negate direction
+      {
+        enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
+      enemies.get(i).flipImage();
+      }
+     
+    
+  enemies.get(i).update();
+  }
+  }
   if(bullets.size() >0){  //each update check if bullet has died or is off screen.
   for(int i = 0; i< bullets.size(); i ++)
   {
@@ -59,12 +77,11 @@ void draw() {
   update(); //called every time so we have right
   image(bkg, 0, 0); //draw background
   image(player, p.getPos().x, p.getPos().y);  //draw player
-  image(goldfish, 450, 500);
   for(int i = 0; i <bullets.size(); i++){
     image(bullet, bullets.get(i).pos.x, bullets.get(i).pos.y);
    }
   for(int i = 0; i <enemies.size(); i++){
-    image(goldfish, enemies.get(i).pos.x, enemies.get(i).pos.y);
+    image(loadImage(enemies.get(i).getImage()), enemies.get(i).pos.x, enemies.get(i).pos.y);
   }
 }
 

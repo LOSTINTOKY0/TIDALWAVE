@@ -25,8 +25,6 @@ public class player extends object{
   }//not super important yet
   public bullet fire()
   {
-    
-    print("fired bullet!!\n");
     //create bullet(s?) from angle of crab claw(s)
     bullet b = new bullet(pos.x+72, pos.y+21); //offset so it fires from right claw
     return b;
