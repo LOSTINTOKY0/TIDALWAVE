@@ -66,4 +66,7 @@ void draw() {
   for(int i = 0; i <bullets.size(); i++){
     image(bullet, bullets.get(i).pos.x, bullets.get(i).pos.y);
   }
+  for(int i = 0; i <enemies.size(); i++){
+    image(goldfish, enemies.get(i).pos.x, enemies.get(i).pos.y);
+  }
 }
