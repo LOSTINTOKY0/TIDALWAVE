@@ -8,7 +8,6 @@ public squid(){
   super.radius = 20;
 }
 public squid(float x, float y){
-   
     super.pos = new Vec2(x,y);
     super.one = "images/squid.png"; 
     super.two = "images/squid2.png";

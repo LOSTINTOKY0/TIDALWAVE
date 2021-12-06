@@ -28,13 +28,15 @@ public void spawnEnemy(){
   
  float a = random(1);
   
-  if(a<.5f){ 
+  if(a<.3f){ 
     enemies.add(new enemy(random(700), random(700)));
  }
-  else
+  else if(a <.4f)
   { 
      enemies.add(new squid(random(700), random(700)));
      
+  }else{
+    enemies.add(new neonTetra(random(700),random(700)));
   } 
  
 } 
@@ -54,7 +56,6 @@ public void update(){
       enemies.get(i).flipImage();
       }
   enemies.get(i).update();
-  print("img  issss " + enemies.get(i).getImage()+ " \n");
   }
   }
   if(bullets.size() >0){  //each update check if bullet has died or is off screen.
