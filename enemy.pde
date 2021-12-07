@@ -7,18 +7,18 @@
   {   
   super();
   aggression = .5f; //base agression
-  vel = new Vec2(2,2);
-  radius = 4;
-  img = one; //default enemy image;
+  super.vel = new Vec2(2,2);
+  super.radius = 4;
+  super.img = one; //default enemy image;
   }
   public enemy(float x, float y)  //constructor with default values
   {   
   super();
-  pos = new Vec2(x,y);
+  super.pos = new Vec2(x,y);
   aggression = .5f; //base agression
-  vel = new Vec2(2,0);
-  radius = 40;
-  img = one; //default enemy image;
+  super.vel = new Vec2(2,0);
+  super.radius = 40;
+  super.img = one; //default enemy image;
   }
   
   public void flipImage(){

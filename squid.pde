@@ -13,7 +13,7 @@ public squid(float x, float y){
     super.two = "images/squid2.png";
     super.img = one;
     super.vel = new Vec2(0,-1.5);
-    super.radius = 20;
+    super.radius = 25;
 }
 public void ink(){} //create cloud of ink that stays on screen ~3-4 secs
  

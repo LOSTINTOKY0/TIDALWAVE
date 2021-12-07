@@ -10,7 +10,7 @@ public class object //base class for everything
   public object(){
    pos = new Vec2(0,0);
    vel = new Vec2(0,0);
-   radius = 3;
+   radius = 20;
    health = 0; //base health, 0 means can only take one hit
    img = "images/goldfish.png"; //default image
    alive = true;

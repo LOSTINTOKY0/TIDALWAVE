@@ -8,10 +8,11 @@ public class player extends object{
   {
     super();
     frame = 1;   //start frame 
-    health = 3; //default life number
+    super.health = 3; //default life number
     isInvincible = false; //for powerup later on
-    vel = new Vec2(15,15);  //base velocity is 3 pix
-    pos = new Vec2(mouseX-16*3,mouseY-16*3);
+    super.vel = new Vec2(15,15);  //base velocity is 3 pix
+    super.pos = new Vec2(mouseX-16*3,mouseY-16*3);
+    super.radius = 15;
     
   }
   

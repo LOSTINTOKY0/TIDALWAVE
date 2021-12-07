@@ -48,12 +48,18 @@ public void spawnEnemy(){
 } 
 
 public void update(){
+  isColliding();
   p.update();
   while(enemies.size() <9){
   spawnEnemy();
   }
   if(enemies.size() >0){
   for(int i = 0; i< enemies.size(); i ++){
+    if(!enemies.get(i).alive){
+      enemies.remove(i);
+      return;
+    }
+    
       Vec2 pos = enemies.get(i).getPos(); 
       float rad = enemies.get(i).getRad();
       if(pos.x >screenX - rad*2 ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds, if out of screen bounds then negate direction
@@ -93,24 +99,33 @@ public void update(){
 }
 
 public void isColliding(){ //check collisions
-for(int i = 0; i< enemies.size(); i++){ //loop through all enemies
+for(int i = 0; i< enemies.size(); i++){       //loop through all enemies
   float eRad = enemies.get(i).getRad();
   Vec2 ePos = enemies.get(i).getPos();
-  if(p.getPos().x- ePos.x < eRad +p.getRad() && p.getPos().y- ePos.y < eRad +p.getRad() ){ //check if player hits any enemies
-    enemies.get(i).hit();
-    p.hit();
+  Vec2 pPos = p.getPos();
+  float pRad = p.getRad();
+  if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any enemies
+     enemies.get(i).hit();
+     p.hit();
+    print("player hit enemy");
   }
+  
+ 
   for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
-  if(bullets.get(i).getPos().x- ePos.x < eRad +bullets.get(i).getRad() &&  bullets.get(i).getPos().y- ePos.y < eRad +bullets.get(i).getRad() ){
-    bullets.get(i).hit();
+  Vec2 bPos = bullets.get(j).getPos();
+  float bRad = bullets.get(j).getRad();
+  if(ePos.distanceTo(bPos)<eRad+bRad){
+    bullets.get(j).hit();
     enemies.get(i).hit();
+    print("bullet hit enemy");
     
   }
   }
 }
+}//end of isColliding
 
 
-}
+
 void draw() {
   update(); //called every time so we have right
   image(bkg, 0, 0); //draw background
