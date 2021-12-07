@@ -12,7 +12,7 @@ public class player extends object{
     isInvincible = false; //for powerup later on
     super.vel = new Vec2(15,15);  //base velocity is 3 pix
     super.pos = new Vec2(mouseX-16*3,mouseY-16*3);
-    super.radius = 15;
+    super.radius = 32*3/2;
     
   }
   

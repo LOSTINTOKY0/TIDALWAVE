@@ -14,7 +14,7 @@ static int screenY = 750;
 player p = new player();
 ArrayList<bullet> bullets = new ArrayList<bullet>();  //need way to keep track of bullets
 ArrayList<enemy> enemies = new ArrayList<enemy>();  //need way to keep track of enemies 
-
+boolean radDebug = false;
 
 
 void settings()
@@ -104,6 +104,8 @@ for(int i = 0; i< enemies.size(); i++){       //loop through all enemies
   Vec2 ePos = enemies.get(i).getPos();
   Vec2 pPos = p.getPos();
   float pRad = p.getRad();
+  ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
+  pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
   if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any enemies
      enemies.get(i).hit();
      p.hit();
@@ -114,6 +116,7 @@ for(int i = 0; i< enemies.size(); i++){       //loop through all enemies
   for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
   Vec2 bPos = bullets.get(j).getPos();
   float bRad = bullets.get(j).getRad();
+  bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
   if(ePos.distanceTo(bPos)<eRad+bRad){
     bullets.get(j).hit();
     enemies.get(i).hit();
@@ -135,6 +138,19 @@ void draw() {
    }
   for(int i = 0; i <enemies.size(); i++){
     image(loadImage(enemies.get(i).getImage()), enemies.get(i).pos.x, enemies.get(i).pos.y);
+  }
+  if(radDebug){
+    circle(p.getPos().x +p.getRad(), p.getPos().y + p.getRad() , p.getRad()*2);
+    for(int i = 0;  i< bullets.size(); i ++){
+      Vec2 bPos = bullets.get(i).getPos();
+      float bRad = bullets.get(i).getRad();
+      circle(bPos.x + bRad, bPos.y + bRad, bRad*2);
+    }
+    for(int i = 0; i< enemies.size(); i ++){
+     Vec2 bPos = enemies.get(i).getPos();
+      float bRad = enemies.get(i).getRad();
+      circle(bPos.x + bRad, bPos.y + bRad, bRad*2);
+    }
   }
 }
 

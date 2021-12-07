@@ -6,7 +6,7 @@ super.pos = new Vec2(x,y);
     super.two = "images/neonTetra2.png";
     super.img = one;
     super.vel = new Vec2(4.5,-1);
-    super.radius = 10;
+    super.radius = 20;
 
 }
 }
