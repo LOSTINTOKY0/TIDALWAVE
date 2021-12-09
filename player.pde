@@ -31,6 +31,7 @@ public class player extends object{
     return b;
   } //shoot claws
   
+  public boolean isAlive(){return alive;}
   
 
 }
