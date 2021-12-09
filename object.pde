@@ -11,7 +11,7 @@ public class object //base class for everything
    pos = new Vec2(0,0);
    vel = new Vec2(0,0);
    radius = 20;
-   health = 0; //base health, 0 means can only take one hit
+   health = 1; //base health, 0 means can only take one hit
    img = "images/goldfish.png"; //default image
    alive = true;
   }
@@ -30,7 +30,7 @@ public class object //base class for everything
   }
   
    public void hit(){
-    if(health >0){
+    if(health >1){
       health --;
     }
     else

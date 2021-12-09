@@ -24,6 +24,11 @@ public class player extends object{
   {
     
   }//not super important yet
+  
+  public void reset(){
+    p.health = 3;
+    p.alive = true;
+  }
   public bullet fire()
   {
     //create bullet(s?) from angle of crab claw(s)

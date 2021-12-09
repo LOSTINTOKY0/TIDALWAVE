@@ -3,19 +3,21 @@
 
 
 //TODO: 
-//bullet isn't as spammy, maxes at 9 on screen but is a lil wonky still
+//bullet isn't as spammy, maxes at 9 on screen but is a lil wonky still, add timing that wworks?
 //add swarming behavior
 //add following behavior
 //add obstacles (?)
-//collision detection -- maybe improve and offset initial image position ?
-//titlescreen w/buttons n options - want to
+//need music
+//collision detection -- maybe improve and offset initial image position ? otherwise fine
+//titlescreen only works for game -- no instructions or credits yet
 //make highscore int and such
-
+//wait to spawn enemies so player isn't instantly flooded
+//add scrolling mechanics to screen -- need larger image
 PImage bkg,player, goldfish, bullet;
 
 int count;
-static int screenX = 600;  //x and y of background 
-static int screenY = 600;
+static int screenX = 750;  //x and y of background 
+static int screenY = 750;
 player p = new player();
 ArrayList<bullet> bullets = new ArrayList<bullet>();  //need way to keep track of bullets
 ArrayList<enemy> enemies = new ArrayList<enemy>();  //need way to keep track of enemies 
@@ -140,7 +142,7 @@ void draw() {
   if(screen == 0){
     
     image(loadImage("images/tidalTitle.png"),0,0);
-    //rect(190,230,190,45); // for start
+   // rect(190*1.25,230*1.25,190*1.25,45*1.25); // for start
     
   
   }
@@ -185,14 +187,17 @@ void mouseClicked(){
 //changes depending on screen
   if(screen == 0){
     //check mouse x and y to see if they're in bounds of play button
-    if(mouseX >190 && mouseX <190+190){
-      if(mouseY >230 && mouseX <230+45){
+    if(mouseX >190*1.25 && mouseX <190*1.25+190*1.25){
+      if(mouseY >230*1.25 && mouseX <230*1.25+45*1.25){
         screen = 1;
     }
     }
   }
   if(screen == 4){  //click to return to main screen
     screen = 0;
+    p.reset();
+    enemies.clear();
+    bullets.clear();
   }
 
 }
@@ -216,10 +221,10 @@ void keyPressed() {
       p.setPos(pos.x +vel.x, pos.y );
     }*/
     if(keyCode == ' '){
-      timeCurr = millis();
+     /* timeCurr = millis();        //time delay was a pain,maybe fix later?
       float elapsed = timeCurr-timePrev;
-      timePrev = millis();
-      if(bullets.size() < 9 && elapsed>300){
+      timePrev = millis(); */
+      if(bullets.size() < 9){// && elapsed>300){
         
       bullets.add(p.fire());
       }
