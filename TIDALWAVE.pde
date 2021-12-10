@@ -13,7 +13,7 @@
 //make highscore int and such
 //wait to spawn enemies so player isn't instantly flooded
 //add scrolling mechanics to screen -- need larger image
-PImage bkg,player, goldfish, bullet;
+PImage bkg,player1,player2, goldfish, bullet;
 
 int count;
 static int screenX = 750;  //x and y of background 
@@ -33,7 +33,8 @@ void settings()
 }
 void setup() {
   bkg = loadImage("images/background.png");
-  player = loadImage("images/crab.png");
+  player1 = loadImage("images/crab.gif");
+  player2 = loadImage("images/crab.gif");
   bullet = loadImage("images/claw.png");
   p.setPos(new Vec2(325,325));
 }
@@ -138,7 +139,8 @@ for(int i = 0; i< enemies.size(); i++){       //loop through all enemies
 
 
 void draw() {
-  cursor(player);
+    cursor(player1);
+  
   if(screen == 0){
     
     image(loadImage("images/tidalTitle.png"),0,0);
