@@ -8,7 +8,7 @@
   super();
   aggression = .5f; //base agression
   super.vel = new Vec2(2,2);
-  super.radius = 4;
+  super.radius = 20;
   super.img = one; //default enemy image;
   }
   public enemy(float x, float y)  //constructor with default values
@@ -17,7 +17,7 @@
   super.pos = new Vec2(x,y);
   aggression = .5f; //base agression
   super.vel = new Vec2(2,0);
-  super.radius = 40;
+  super.radius = 20;
   super.img = one; //default enemy image;
   }
   

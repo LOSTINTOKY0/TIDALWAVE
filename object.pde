@@ -2,6 +2,7 @@ public class object //base class for everything
 {
  protected Vec2 vel;
  protected Vec2 pos;
+ protected Vec2 acc;
  float radius; //for collisions, need hitbox
  boolean alive;
  float health;
@@ -10,6 +11,7 @@ public class object //base class for everything
   public object(){
    pos = new Vec2(0,0);
    vel = new Vec2(0,0);
+   acc = new Vec2(0,0);
    radius = 20;
    health = 1; //base health, 0 means can only take one hit
    img = "images/goldfish.png"; //default image
@@ -49,6 +51,8 @@ public class object //base class for everything
   public void setPos(float x, float y){pos.x = x; pos.y = y;}
   public Vec2 getVel(){return vel;}
   public void setVel(Vec2 v){vel = v;}
+  public Vec2 getAcc(){return acc;}
+  public void setAcc(Vec2 a){acc = a;}
   
  
     
