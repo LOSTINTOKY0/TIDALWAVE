@@ -13,10 +13,10 @@
 //make highscore int and such
 //wait to spawn enemies so player isn't instantly flooded
 //add scrolling mechanics to screen -- need larger image
-PImage bkg,player, goldfish, bullet;
+PImage bkg, player, goldfish, bullet;
 
 
-float dt = 0.1;
+float dt = 1/frameRate;
 int count;
 int boss_bool = 0;
 static int numBoss = 15;
@@ -25,6 +25,9 @@ float maxSpeed = 10;
 float targetSpeed = 7;
 float maxForce = 10;
 
+int score = 0;
+
+Vec2 velStep = new Vec2(0,0);
 
 static int screenX = 750;  //x and y of background 
 static int screenY = 750;
@@ -43,7 +46,7 @@ void settings()
   size(screenX,screenY);
 }
 void setup() {
-  bkg = loadImage("images/background.png");
+  bkg = loadImage("images/background.PNG");
   player = loadImage("images/crab.png");
   bullet = loadImage("images/claw.png");
   p.setPos(new Vec2(325,325));
@@ -223,66 +226,74 @@ public void update(){
 }
 
 public void isColliding(){ //check collisions
-for(int i = 0; i< enemies.size(); i++){       //loop through all enemies
-  float eRad = enemies.get(i).getRad();
-  Vec2 ePos = enemies.get(i).getPos();
-  Vec2 pPos = p.getPos();
-  float pRad = p.getRad();
-  ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
-  pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
-  if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any enemies
-     enemies.get(i).hit();
-     p.hit();
-  }
+  for(int i = 0; i< enemies.size(); i++){       //loop through all enemies
+    float eRad = enemies.get(i).getRad();
+    Vec2 ePos = enemies.get(i).getPos();
+    Vec2 pPos = p.getPos();
+    float pRad = p.getRad();
+    ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
+    pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
+    if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any enemies
+       enemies.get(i).hit();
+       p.hit();
+    }
   
  
-  for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
-  Vec2 bPos = bullets.get(j).getPos();
-  float bRad = bullets.get(j).getRad();
-  bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
-  if(ePos.distanceTo(bPos)<eRad+bRad){
-    bullets.get(j).hit();
-    enemies.get(i).hit();
-    
+    for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
+      Vec2 bPos = bullets.get(j).getPos();
+      float bRad = bullets.get(j).getRad();
+      bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
+      if(ePos.distanceTo(bPos)<eRad+bRad){
+        bullets.get(j).hit();
+        enemies.get(i).hit();
+        score += 10;
+      }
+    }
   }
-  }
-}
 
-for(int i = 0; i< boss.size(); i++){       //loop through all boss
-  float eRad = boss.get(i).getRad();
-  Vec2 ePos = boss.get(i).getPos();
-  Vec2 pPos = p.getPos();
-  float pRad = p.getRad();
-  ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
-  pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
-  if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any bosses
-     boss.get(i).hit();
-     p.hit();
-  }
+  for(int i = 0; i< boss.size(); i++){       //loop through all boss
+    float eRad = boss.get(i).getRad();
+    Vec2 ePos = boss.get(i).getPos();
+    Vec2 pPos = p.getPos();
+    float pRad = p.getRad();
+    ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
+    pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
+    if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any bosses
+      boss.get(i).hit();
+      p.hit();
+    }
   
  
-  for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
-  Vec2 bPos = bullets.get(j).getPos();
-  float bRad = bullets.get(j).getRad();
-  bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
-  if(ePos.distanceTo(bPos)<eRad+bRad){
-    bullets.get(j).hit();
-    boss.get(i).hit();  
+    for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
+      Vec2 bPos = bullets.get(j).getPos();
+      float bRad = bullets.get(j).getRad();
+      bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
+      if(ePos.distanceTo(bPos)<eRad+bRad){
+        bullets.get(j).hit();
+        boss.get(i).hit();  
+        score += 50;
+      }
+    }
   }
-  }
-}
 }//end of isColliding
 
+// Runs physics operations for player and projectile movement
+void movePhysics(float dt) {
+  //Vec2 newPlayerPos = p.getPos().plus(p.getVel().times(dt));
+  //p.setPos(newPlayerPos);
+  for (int i = 0; i < bullets.size(); i++) {
+    Vec2 newBulletPos = bullets.get(i).getPos().plus(bullets.get(i).getVel().times(dt));
+    bullets.get(i).setPos(newBulletPos);
+  }
+} // end of movePhysics
 
 
 void draw() {
-  cursor(player);
+  movePhysics(1/frameRate);
+  
   if(screen == 0){
-    
     image(loadImage("images/tidalTitle.png"),0,0);
    // rect(190*1.25,230*1.25,190*1.25,45*1.25); // for start
-    
-  
   }
   if(screen == 1 ){ //checks what screen we are on, 0 is title screen
     if(p.isAlive()){
@@ -300,6 +311,15 @@ void draw() {
     for(int i = 0; i<p.health; i++){
       image(bullet, 10+i*30, 10);
     }
+    
+    // Writing score to screen
+    
+    fill(0);
+    stroke(5);
+    fill(255);
+    textFont(createFont("Arial",16,true), 30);
+    text("Score: " + str(score), 3*width/4, 30);
+    
     if(radDebug){       //this section is to debug hitboxes, draws them for refrence
       circle(p.getPos().x +p.getRad(), p.getPos().y + p.getRad() , p.getRad()*2);
       for(int i = 0;  i< bullets.size(); i ++)
@@ -328,6 +348,10 @@ void draw() {
     }
   }
  
+  image(player, p.getPos().x, p.getPos().y);
+  
+  
+  
   
 }
 void mouseClicked(){
@@ -337,7 +361,7 @@ void mouseClicked(){
     if(mouseX >190*1.25 && mouseX <190*1.25+190*1.25){
       if(mouseY >230*1.25 && mouseX <230*1.25+45*1.25){
         screen = 1;
-    }
+      }
     }
   }
   if(screen == 4){  //click to return to main screen
@@ -350,31 +374,51 @@ void mouseClicked(){
 
 }
 void keyPressed() {
- /* Vec2 pos = p.getPos();      //i decided that i didn't like the wsad controls at ALL so i switched to mouse
-  Vec2 vel = p.getVel();
-    if(key == 'w')
-    {
-    p.setPos(pos.x, pos.y - vel.y);
-    }
-    if(key == 's')
-    {
-      p.setPos(pos.x, pos.y + vel.y);
-    }
-    if(key == 'a')
-    {
-      p.setPos(pos.x - vel.x, pos.y );
-    }
-     if(key == 'd')
-    {
-      p.setPos(pos.x +vel.x, pos.y );
-    }*/
-    if(keyCode == ' '){
-     /* timeCurr = millis();        //time delay was a pain,maybe fix later?
-      float elapsed = timeCurr-timePrev;
-      timePrev = millis(); */
-      if(bullets.size() < 9){// && elapsed>300){
-        
+  /*
+  if(key == 'w' || key == 'W')
+  {
+    p.setVel(new Vec2(p.getVel().x, -450));
+  }
+  if(key == 's' || key == 'S')
+  {
+    p.setVel(new Vec2(p.getVel().x, 450));
+  }
+  if(key == 'a' || key == 'A')
+  {
+    p.setVel(new Vec2(-450, p.getVel().y));
+  }
+  if(key == 'd' || key == 'D')
+  {
+    p.setVel(new Vec2(450, p.getVel().y));
+  }
+    */
+  if(keyCode == ' '){
+   /* timeCurr = millis();        //time delay was a pain,maybe fix later?
+    float elapsed = timeCurr-timePrev;
+    timePrev = millis(); */
+    if(bullets.size() < 9){// && elapsed>300){
       bullets.add(p.fire());
-      }
     }
-    }
+  }
+}
+
+void keyReleased() {
+  /*
+  if(key == 'w' || key == 'W')
+  {
+    p.setVel(new Vec2(p.getVel().x, 0));
+  }
+  if(key == 's' || key == 'S')
+  {
+    p.setVel(new Vec2(p.getVel().x, 0));
+  }
+  if(key == 'a' || key == 'A')
+  {
+    p.setVel(new Vec2(0, p.getVel().y));
+  }
+  if(key == 'd' || key == 'D')
+  {
+    p.setVel(new Vec2(0, p.getVel().y));
+  }
+  */
+}
