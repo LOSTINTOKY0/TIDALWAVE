@@ -15,7 +15,7 @@ public boss(float x, float y){
     super.vel = new Vec2(-1+random(2),-1+random(2));;
     super.acc = new Vec2(0,0);
     super.vel.normalize();
-    super.vel.mul(maxSpeed);
+    super.vel.mul(speed);
     super.radius = 7;
 }
 }
