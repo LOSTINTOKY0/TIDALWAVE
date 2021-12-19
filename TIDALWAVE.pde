@@ -1,3 +1,4 @@
+ import processing.sound.*;
 //beginning of swarmshot
 //maybe needs new name- TIDALWAVE?
 
@@ -14,7 +15,11 @@
 //wait to spawn enemies so player isn't instantly flooded
 //add scrolling mechanics to screen -- need larger image
 PImage bkg, player, goldfish, bullet,rules;
-
+float start, curr;//for looping sound
+  SoundFile file;
+  String audioName = "crabRave.wav";
+SoundFile bulletNoise;
+  String bulletSoundFile = "bubble.wav";
 
 
 
@@ -47,13 +52,14 @@ int trueScreen = 2250; //image is a cube, 2250x 2250 y
 int screenPosX, screenPosY; //keeps track of the top left corner of screen
 player p;// = new player();
 ArrayList<bullet> bullets = new ArrayList<bullet>();  //need way to keep track of bullets
+ArrayList<enemy> tetras = new ArrayList<enemy>();
 ArrayList<enemy> enemies = new ArrayList<enemy>();  //need way to keep track of enemies
 ArrayList<boss> boss = new ArrayList<boss>();  //need way to keep track of bosses
 boolean radDebug = false;
 float timeCurr;
 float timePrev;  //useful for spacing out the claw shooting things
 int screen = 0; //tells us if we're on title screen (0), how to play screen (1), credit screen(5), general game screen(2),  boss screen(3), or gameover screen(4).
-
+Vec2 prevTetraPos = new Vec2(0,0);
 
 void settings()
 {
@@ -68,6 +74,10 @@ void setup() {
   p = new player(325,500);
   startPosX = 333;
   startPosY = 333;
+    file = new SoundFile(this,audioName);
+    bulletNoise = new SoundFile(this,bulletSoundFile);
+    file.play();
+    start = millis();
 
 }
 
@@ -77,27 +87,43 @@ public void spawnEnemy(){
 
  float a = random(1);
 
-  if(a<.3f){
-    enemies.add(new enemy(random(700), random(700)));
+  if(a<.2f){
+   enemies.add(new enemy(random(1355-startPosX), random(1355-startPosY)));
  }
-  else if(a <.4f){
-     enemies.add(new squid(random(600), random(700)));
+  else if(a <.25f){
+     enemies.add(new squid(random(1355-startPosX), random(1355-startPosY)));
   }
   else{
-     enemies.add(new neonTetra(random(700),random(700)));
+    if(prevTetraPos.x==0 && prevTetraPos.y==0){
+    prevTetraPos = new Vec2(random(1355-startPosX),random(1355-startPosY));
+    }
+    //for(int i = 0; i<2; i++){
+     prevTetraPos = new Vec2(random(prevTetraPos.x-50,prevTetraPos.x),random(prevTetraPos.y-50,prevTetraPos.y));
+     tetras.add(new neonTetra(prevTetraPos.x,prevTetraPos.y));
+   // }
+    
   }
 
 }
 public void spawnBoss(){
     //come up with better way to spawn boss rather than random
       for(int i = 0; i < (numBoss*level); i++){
-       boss.add(new boss(random(30,200), random(30,200)));
-   }
+       boss.add(new boss(random(-startPosX, 1355-startPosX), random(-startPosY,1355-startPosY)));
+       }
   }
 
 public void update(){
   //max_enemies *= level;
   //numBoss *= level;
+  curr = millis();
+  if(curr-start >= 163326.4 && screen == 1){//if we've reached the end of our audiofile, play again!
+       file.stop();
+        file.cue(28.9);
+        file.play();
+        file.amp(.3);
+        start = millis()+ 28900;
+  }
+ 
   isColliding();
     p.update();
     startPosX += (int) (p.getVel().x*1.3);  //helps with screen scrolling
@@ -126,15 +152,15 @@ public void update(){
   if(boss.size() >=1){
     boss_bool = 1;
     }
-  if(enemies.size() < (max_enemies*level) && boss.size() ==0 && boss_bool == 0){
+  if(enemies.size() + tetras.size()< (max_enemies*level) && boss.size() ==0 && boss_bool == 0){
     boss_bool = 1;
-    p.health = level*2;
     spawnEnemy();
   }
   if((score > (level*5)-1) && (boss.size() < numBoss) && boss_bool ==0){
     spawnBoss();
     println("level: ", level);
     level++;
+     p.health += level;
   }
 
   if(enemies.size() >0){
@@ -145,14 +171,26 @@ public void update(){
       //score++;
       return;
     }
+    
+   
+  
 
       Vec2 pos = enemies.get(i).getPos();
-      //float rad = enemies.get(i).getRad();
+      float rad = enemies.get(i).getRad();
       Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
-      if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      if(currPos.x > 1416  || currPos.x<0 || currPos.y >1416   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
       {
         enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
       enemies.get(i).flipImage();
+      if(currPos.x >1355){
+      enemies.get(i).setPos(new Vec2(1335-startPosX -rad*2, enemies.get(i).getPos().y));
+      }else if(currPos.x <0){
+      enemies.get(i).setPos(new Vec2(-startPosX + rad*2, enemies.get(i).getPos().y));
+      }else if(currPos.y >1355){
+      enemies.get(i).setPos(new Vec2(enemies.get(i).getPos().x, 1335-startPosY + rad*2));
+      }else if(currPos.y <0){
+      enemies.get(i).setPos(new Vec2(enemies.get(i).getPos().x, -startPosY + rad*2));
+      }
       }
 
   enemies.get(i).update();
@@ -178,7 +216,136 @@ public void update(){
     }
   }
 }
+if(tetras.size() >0){      //neon tetra equations !!!
+  Vec2 pos = tetras.get(0).getPos();
+      float rad = tetras.get(0).getRad();
+      Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      if(currPos.x > 1416  || currPos.x<0 || currPos.y >1416   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      {
+        tetras.get(0).setVel(tetras.get(0).getVel().times(-1));
+      tetras.get(0).flipImage();
+      for(int i = 1; i<tetras.size(); i++){
+        tetras.get(i).flipImage();
+      }
+      if(currPos.x >1416){
+      tetras.get(0).setPos(new Vec2(1335-startPosX -rad*2, tetras.get(0).getPos().y));
+      }else if(currPos.x <0){
+      tetras.get(0).setPos(new Vec2(-startPosX + rad*2, tetras.get(0).getPos().y));
+      }else if(currPos.y >1416){
+      tetras.get(0).setPos(new Vec2(tetras.get(0).getPos().x, 1335-startPosY + rad*2));
+      }else if(currPos.y <0){
+      tetras.get(0).setPos(new Vec2(tetras.get(0).getPos().x, -startPosY + rad*2));
+      }
+      }
+      //updated tetras 0
+      tetras.get(0).update();
+      if(updateSpeed){tetras.get(0).setPos( tetras.get(0).getPos().minus((p.getVel().times(2.24))));
+     }
+  for(int i = 1; i< tetras.size(); i ++){
+    Vec2 zeroVec = new Vec2 (0,0);
+    tetras.get(i).setAcc(zeroVec);
 
+
+    /////////////////////////////
+    //Seperation force (push away from each neighbor if we are too close
+    for  (int j = 0; j < tetras.size(); j++){ //Go through neighbors
+      float dist = tetras.get(i).pos.distanceTo(tetras.get(j).pos);
+      if (dist < .01 || dist > 50) continue; //TODO: Why do we not need to skip i == j?
+      Vec2 seperationForce =  tetras.get(i).pos.minus(tetras.get(j).pos).normalized();
+      seperationForce.setToLength(500.0/pow(dist,1.5));
+      tetras.get(i).acc = tetras.get(i).acc.plus(seperationForce);
+    }
+    //Atttraction force (move towards the average position of our neighbors
+    Vec2 avgPos = new Vec2(0,0);
+    int count = 0;
+    for  (int j = 0; j <  tetras.size(); j++){ //Go through each neighbor
+      float dist = tetras.get(i).pos.distanceTo(tetras.get(j).pos);
+      if (dist < 60 && dist > 0){
+        avgPos.add(tetras.get(j).pos);
+        count += 1;
+      }
+    }
+    avgPos.mul(1.0/count);
+    if (count >= 1){
+      Vec2 attractionForce = avgPos.minus(tetras.get(i).pos);
+      attractionForce.normalize();
+      attractionForce.mul(1.0);
+      attractionForce.clampToLength(15);
+      tetras.get(i).acc = tetras.get(i).acc.plus(attractionForce);
+    }
+    //Alignment force
+    Vec2 avgVel = new Vec2(0,0);
+    count = 0;
+    for  (int j = 0; j <  tetras.size(); j++){ //Go through each neighbor
+      float dist = tetras.get(i).pos.minus(tetras.get(j).pos).length();
+      if (dist < 40 && dist > 0){
+        avgVel.add(tetras.get(j).vel);
+        count += 1;
+      }
+    }
+    avgVel.mul(1.0/count);
+    if (count >= 1){
+      Vec2 towards = avgVel.minus(tetras.get(i).vel);
+      towards.normalize();
+      tetras.get(i).acc = tetras.get(i).acc.plus(towards.times(2));
+    }
+    //Goal Speed
+    Vec2 mousePos = tetras.get(0).getPos();
+    Vec2 targetVel = mousePos.minus(tetras.get(i).pos);
+    targetVel.setToLength(targetSpeed);
+    Vec2 goalSpeedForce = targetVel.minus(tetras.get(i).vel);
+    goalSpeedForce.mul(1.0);
+    goalSpeedForce.clampToLength(1000);
+    tetras.get(i).acc = tetras.get(i).acc.plus(goalSpeedForce);
+
+    //Wander force
+    Vec2 randVec = new Vec2(1-random(2),1-random(2));
+    tetras.get(i).acc = tetras.get(i).acc.plus(randVec.times(10.0));
+
+    ///////////////////////////////////
+
+
+
+    //Update Position & Velocity
+    tetras.get(i).pos = tetras.get(i).pos.plus(tetras.get(i).vel.times(dt));
+    tetras.get(i).vel = tetras.get(i).vel.plus(tetras.get(i).acc.times(dt).times(1.5));
+  
+    //Max speed
+    //if (tetras.get(i).vel.length() > speed*level){
+    //  tetras.get(i).vel = tetras.get(i).vel.normalized().times(speed*level);
+   // }
+  
+
+    if(!tetras.get(i).alive){
+      tetras.remove(i);
+      return;
+    }
+ 
+    
+       pos = tetras.get(i).getPos();
+       rad = tetras.get(i).getRad();
+      currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      if(currPos.x > 1416  || currPos.x<0 || currPos.y >1416   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      {
+   
+      if(currPos.x >1416){
+      tetras.get(i).setPos(new Vec2(1416-startPosX -rad*12, tetras.get(i).getPos().y));
+      }else if(currPos.x <0){
+      tetras.get(i).setPos(new Vec2(0-startPosX + rad*12, tetras.get(i).getPos().y));
+      }else if(currPos.y >1416){
+      tetras.get(i).setPos(new Vec2(tetras.get(i).getPos().x, 1416-startPosY - rad*12));
+      }else if(currPos.y <0){
+      tetras.get(i).setPos(new Vec2(tetras.get(i).getPos().x, 0-startPosY +rad*12));
+      }
+      }
+  tetras.get(i).update();
+  if(updateSpeed){ tetras.get(i).setPos(tetras.get(i).getPos().minus((p.getVel().times(2.242424))));
+
+  }
+  }
+  if(!tetras.get(0).alive){
+    tetras.remove(0);
+  } }//tetras
 
 ///////////////// THIS IS WHERE ENTIRE BOIDS ALGORITHM GETS IMPLEMENTED ////////////////////
   if(boss.size() >0){
@@ -262,12 +429,31 @@ public void update(){
       return;
     }
     //check if it reaches an edge
-    if(boss.get(i).pos.x >trueScreen - boss.get(i).radius*2 ||boss.get(i).pos.x<0 || boss.get(i).pos.y >trueScreen || boss.get(i).pos.y<0) //check if in bounds, if out of screen bounds then negate direction
+   /* if(boss.get(i).pos.x >trueScreen - boss.get(i).radius*2 ||boss.get(i).pos.x<0 || boss.get(i).pos.y >trueScreen || boss.get(i).pos.y<0) //check if in bounds, if out of screen bounds then negate direction
     {
       boss.get(i).setVel(boss.get(i).getVel().times(-1));
-    }
+    } */
+    
+      Vec2 pos = boss.get(i).getPos();
+      float rad = boss.get(i).getRad();
+     Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      {
+       // boss.get(i).setVel(boss.get(i).getVel().times(-1));
+     // boss.get(i).flipImage();
+      
+      if(currPos.x >1355){
+      boss.get(i).setPos(new Vec2(1355-startPosX -rad*12, boss.get(i).getPos().y));
+      }else if(currPos.x <0){
+      boss.get(i).setPos(new Vec2(0-startPosX + rad*12, boss.get(i).getPos().y));
+      }else if(currPos.y >1355){
+      boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 1355-startPosY - rad*12));
+      }else if(currPos.y <0){
+      boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 0-startPosY +rad*12));
+      }
+      }
   boss.get(i).update();
-  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.24))));
+  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.242424))));
 
   }
   }
@@ -302,7 +488,31 @@ public void isColliding(){ //check collisions
         score += 10 * level;
       }
     }
-  }
+  }//end of bullet check
+   for(int i = 0; i< tetras.size(); i++){       //loop through all tetras
+    float eRad = tetras.get(i).getRad();
+    Vec2 ePos = tetras.get(i).getPos();
+    Vec2 pPos = p.getPos();
+    float pRad = p.getRad();
+    ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
+    pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
+    if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any tetras
+       tetras.get(i).hit();
+       p.hit();
+    }
+
+
+    for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
+      Vec2 bPos = bullets.get(j).getPos();
+      float bRad = bullets.get(j).getRad();
+      bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
+      if(ePos.distanceTo(bPos)<eRad+bRad){
+        bullets.get(j).hit();
+        tetras.get(i).hit();
+        score += 10;
+      }
+    }
+  } //end of tetra check
 
   for(int i = 0; i< boss.size(); i++){       //loop through all boss
     float eRad = boss.get(i).getRad();
@@ -327,7 +537,7 @@ public void isColliding(){ //check collisions
         score += 50 * level;
       }
     }
-  }
+  }//end of boss check
 }//end of isColliding
 
 // Runs physics operations for player and projectile movement
@@ -344,10 +554,28 @@ void draw() {
   movePhysics(1/frameRate);
 
   if(screen == 0){
+<<<<<<< HEAD
+=======
+   cursor(bullet);
+>>>>>>> 9f224ed64a1a7a9c5655ad14738ee10a1d7811db
     image(loadImage("images/tidalTitle.png"),0,0);
-   // rect(186*1.25, 327*1.25, 195*1.25, 45*1.25); // for start
+    curr = millis();
+     if(curr-start >= 28900 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
+   //rect(165*1.25, 420*1.25, 255*1.25, 45*1.25); // for start
   }else if(screen == 2){
-   cursor(player);
+    curr = millis();
+     if(curr-start >= 28900 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
+   cursor(bullet);
     image(rules,0,0);
     fill(255,255,255);
     text("HOW TO PLAY ", 250, 50);
@@ -359,6 +587,29 @@ void draw() {
     text("shoot as many fish as possible! ", 100, 425);
     
     text("press spacebar to return to main menu ", 100, 550);
+    //rect(190*1.25, 230*1.25, 190*1.25, 45*1.25); // for start
+  }else if(screen == 3){
+    curr = millis();
+     if(curr-start >= 28900 || curr-start>=0 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
+   cursor(bullet);
+    image(rules,0,0);
+    fill(255,255,255);
+    text("CREDITS ", 320, 50);
+    
+    text("JACOB NELSON",50, 175);
+    
+    text("WYATT GUSTAFSON", 50, 300);
+    
+    text("AUDREY HEBERT ", 50, 425);
+    
+    text("MADE FOR FALL 2021 5611 FINAL PROJECT ", 50, 550);
+    
+    text("press spacebar to return to main menu ", 50, 675);
     //rect(190*1.25, 230*1.25, 190*1.25, 45*1.25); // for start
   }
   if(screen == 1 ){ //checks what screen we are on, 0 is title screen
@@ -372,11 +623,14 @@ void draw() {
       image(bullet, bullets.get(i).pos.x, bullets.get(i).pos.y);
      }
     for(int i = 0; i <enemies.size(); i++){    //draw enemies
-      image(loadImage(enemies.get(i).getImage()), enemies.get(i).pos.x, enemies.get(i).pos.y, enemies.get(i).radius*3,enemies.get(i).radius*3);
+      image(loadImage(enemies.get(i).getImage()), enemies.get(i).pos.x, enemies.get(i).pos.y);// enemies.get(i).radius*3,enemies.get(i).radius*3);
     }
     for(int i = 0; i <boss.size(); i++){    //draw boss figures
-      image(loadImage(boss.get(i).getImage()), boss.get(i).pos.x, boss.get(i).pos.y, boss.get(i).radius*3,boss.get(i).radius*3);
+      image(loadImage(boss.get(i).getImage()), boss.get(i).pos.x, boss.get(i).pos.y, boss.get(i).radius*12,boss.get(i).radius*12);
     }
+    for(int i = 0; i <tetras.size(); i++){     //draw tetras
+      image(loadImage(tetras.get(i).getImage()), tetras.get(i).pos.x, tetras.get(i).pos.y);
+     }
     for(int i = 0; i<p.health; i++){
       image(bullet, 10+i*30, 10);
     }
@@ -388,6 +642,7 @@ void draw() {
     fill(255);
    
     text("Score: " + str(score), 3*width/4, 30);
+     text("LEVEL " + str(level), 2*width/4, 30);
 
     if(radDebug){       //this section is to debug hitboxes, draws them for refrence
       circle(p.getPos().x +p.getRad(), p.getPos().y + p.getRad() , p.getRad()*2);
@@ -415,8 +670,16 @@ void draw() {
     }
     if(!p.isAlive()){  //switch to gameoverScreen
       screen = 4; //gameover screen
+       curr = millis();
+       if(curr-start >= 28900 || curr-start <0 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        print("REACHED!!!");
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
     image(loadImage("images/dedScreen.png"),0,0);
-    cursor(player);
+    cursor(bullet);
     }
   }
 
@@ -433,11 +696,20 @@ void mouseClicked(){
     if(mouseX >190*1.25 && mouseX <190*1.25*2){
       if(mouseY >230*1.25 && mouseY <230*1.25+45*1.25){
         screen = 1;
+        file.cue(28.9);
+        file.play();
+        file.amp(.3);
+        start = millis()+28900;
       }
     }
      if(mouseX >186*1.25 && mouseX <195*1.25*2){
       if(mouseY >327*1.25 && mouseY <330*1.25+45*1.25){
         screen = 2;
+      }
+    }
+    if(mouseX >165*1.25 && mouseX <165*1.25+255*1.25){
+      if(mouseY >420*1.25 && mouseY <420*1.25+45*1.25){
+        screen = 3;
       }
     }
   }
@@ -458,9 +730,16 @@ void keyPressed() {
     screen = 0;
   }
   }
+  if(screen == 3){
+    if(keyCode == ' '){
+    screen = 0;
+  }
+}
+  
   if(keyCode == ' '){
    if(bullets.size() < 9){
       bullets.add(p.fire());
+      bulletNoise.play();
     }
   }
 }
