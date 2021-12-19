@@ -565,11 +565,12 @@ void keyPressed() {
     if(keyCode == ' '){
     screen = 0;
   }
+}
+  
   if(keyCode == ' '){
    if(bullets.size() < 9){
       bullets.add(p.fire());
       bulletNoise.play();
     }
   }
-}
 }
