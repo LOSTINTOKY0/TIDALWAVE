@@ -17,14 +17,14 @@ PImage bkg, player, goldfish, bullet;
 
 
 
-float dt = 1/frameRate;
+
 float level = 1;
 boolean updateSpeed;
 float dt = 1/frameRate;
 int count;
 int boss_bool = 0;
 
-float score = 1;
+
 
 //static int numBoss = 5*level;
 float numBoss = 5;
@@ -410,7 +410,7 @@ void draw() {
     }
   }
 
-  image(player, p.getPos().x, p.getPos().y);
+  //image(player, p.getPos().x, p.getPos().y);
 
 
 
