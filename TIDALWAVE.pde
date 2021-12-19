@@ -141,8 +141,8 @@ public void update(){
   for(int i = 0; i< enemies.size(); i ++){
     if(!enemies.get(i).alive){
       enemies.remove(i);
-      print(score);
-      score++;
+      //print(score);
+      //score++;
       return;
     }
 
@@ -299,7 +299,7 @@ public void isColliding(){ //check collisions
       if(ePos.distanceTo(bPos)<eRad+bRad){
         bullets.get(j).hit();
         enemies.get(i).hit();
-        score += 10;
+        score += 10 * level;
       }
     }
   }
@@ -324,7 +324,7 @@ public void isColliding(){ //check collisions
       if(ePos.distanceTo(bPos)<eRad+bRad){
         bullets.get(j).hit();
         boss.get(i).hit();
-        score += 50;
+        score += 50 * level;
       }
     }
   }
@@ -344,7 +344,6 @@ void draw() {
   movePhysics(1/frameRate);
 
   if(screen == 0){
-   cursor(player);
     image(loadImage("images/tidalTitle.png"),0,0);
    // rect(186*1.25, 327*1.25, 195*1.25, 45*1.25); // for start
   }else if(screen == 2){
@@ -421,7 +420,7 @@ void draw() {
     }
   }
 
-
+  //image(player, mouseX, mouseY);
 
 
 
@@ -446,7 +445,7 @@ void mouseClicked(){
     screen = 0;
     p.reset();
     level = 1;
-    score = 1;
+    score = 0;
     enemies.clear();
     bullets.clear();
     boss.clear();
