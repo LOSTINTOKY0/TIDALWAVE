@@ -15,9 +15,11 @@
 //wait to spawn enemies so player isn't instantly flooded
 //add scrolling mechanics to screen -- need larger image
 PImage bkg, player, goldfish, bullet,rules;
-
+float start, curr;//for looping sound
   SoundFile file;
   String audioName = "crabRave.wav";
+SoundFile bulletNoise;
+  String bulletSoundFile = "bubble.wav";
 
 
 
@@ -72,7 +74,9 @@ void setup() {
   startPosX = 333;
   startPosY = 333;
     file = new SoundFile(this,audioName);
+    bulletNoise = new SoundFile(this,bulletSoundFile);
     file.play();
+    start = millis();
 
 }
 
@@ -97,13 +101,21 @@ public void spawnBoss(){
     //come up with better way to spawn boss rather than random
       for(int i = 0; i < (numBoss*level); i++){
        boss.add(new boss(random(-startPosX, 1355-startPosX), random(-startPosY,1355-startPosY)));
-       print(" start pos is between" + startPosX*-1 + " and " + (1355-startPosX)+"\n");
-   }
+       }
   }
 
 public void update(){
   //max_enemies *= level;
   //numBoss *= level;
+  curr = millis();
+  if(curr-start >= 163326.4 && screen == 1){//if we've reached the end of our audiofile, play again!
+       file.stop();
+        file.cue(28.9);
+        file.play();
+        file.amp(.3);
+        start = millis()+ 28900;
+  }
+ 
   isColliding();
     p.update();
     startPosX += (int) (p.getVel().x*1.3);  //helps with screen scrolling
@@ -134,13 +146,13 @@ public void update(){
     }
   if(enemies.size() < (max_enemies*level) && boss.size() ==0 && boss_bool == 0){
     boss_bool = 1;
-    p.health = level*2;
     spawnEnemy();
   }
   if((score > (level*5)-1) && (boss.size() < numBoss) && boss_bool ==0){
     spawnBoss();
     println("level: ", level);
     level++;
+     p.health += level;
   }
 
   if(enemies.size() >0){
@@ -380,8 +392,22 @@ void draw() {
   if(screen == 0){
    cursor(bullet);
     image(loadImage("images/tidalTitle.png"),0,0);
-   // rect(186*1.25, 327*1.25, 195*1.25, 45*1.25); // for start
+    curr = millis();
+     if(curr-start >= 28900 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
+   //rect(165*1.25, 420*1.25, 255*1.25, 45*1.25); // for start
   }else if(screen == 2){
+    curr = millis();
+     if(curr-start >= 28900 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
    cursor(bullet);
     image(rules,0,0);
     fill(255,255,255);
@@ -394,6 +420,29 @@ void draw() {
     text("shoot as many fish as possible! ", 100, 425);
     
     text("press spacebar to return to main menu ", 100, 550);
+    //rect(190*1.25, 230*1.25, 190*1.25, 45*1.25); // for start
+  }else if(screen == 3){
+    curr = millis();
+     if(curr-start >= 28900 || curr-start>=0 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
+   cursor(bullet);
+    image(rules,0,0);
+    fill(255,255,255);
+    text("CREDITS ", 320, 50);
+    
+    text("JACOB NELSON",50, 175);
+    
+    text("WYATT GUSTAFSON", 50, 300);
+    
+    text("AUDREY HEBERT ", 50, 425);
+    
+    text("MADE FOR FALL 2021 5611 FINAL PROJECT ", 50, 550);
+    
+    text("press spacebar to return to main menu ", 50, 675);
     //rect(190*1.25, 230*1.25, 190*1.25, 45*1.25); // for start
   }
   if(screen == 1 ){ //checks what screen we are on, 0 is title screen
@@ -413,6 +462,7 @@ void draw() {
       image(loadImage(boss.get(i).getImage()), boss.get(i).pos.x, boss.get(i).pos.y, boss.get(i).radius*12,boss.get(i).radius*12);
     }
     for(int i = 0; i<p.health; i++){
+      print("health is ! " + p.health);
       image(bullet, 10+i*30, 10);
     }
 
@@ -423,6 +473,7 @@ void draw() {
     fill(255);
    
     text("Score: " + str(score), 3*width/4, 30);
+     text("LEVEL " + str(level), 2*width/4, 30);
 
     if(radDebug){       //this section is to debug hitboxes, draws them for refrence
       circle(p.getPos().x +p.getRad(), p.getPos().y + p.getRad() , p.getRad()*2);
@@ -450,6 +501,14 @@ void draw() {
     }
     if(!p.isAlive()){  //switch to gameoverScreen
       screen = 4; //gameover screen
+       curr = millis();
+       if(curr-start >= 28900 || curr-start <0 &&( screen == 0 ||screen == 4 || screen == 2)){//if we've reached the end of our audiofile, play again!
+        print("REACHED!!!");
+        file.cue(0);
+        file.play();
+        file.amp(1);
+        start = millis();
+  }
     image(loadImage("images/dedScreen.png"),0,0);
     cursor(bullet);
     }
@@ -468,11 +527,20 @@ void mouseClicked(){
     if(mouseX >190*1.25 && mouseX <190*1.25*2){
       if(mouseY >230*1.25 && mouseY <230*1.25+45*1.25){
         screen = 1;
+        file.cue(28.9);
+        file.play();
+        file.amp(.3);
+        start = millis()+28900;
       }
     }
      if(mouseX >186*1.25 && mouseX <195*1.25*2){
       if(mouseY >327*1.25 && mouseY <330*1.25+45*1.25){
         screen = 2;
+      }
+    }
+    if(mouseX >165*1.25 && mouseX <165*1.25+255*1.25){
+      if(mouseY >420*1.25 && mouseY <420*1.25+45*1.25){
+        screen = 3;
       }
     }
   }
@@ -493,9 +561,15 @@ void keyPressed() {
     screen = 0;
   }
   }
+  if(screen == 3){
+    if(keyCode == ' '){
+    screen = 0;
+  }
   if(keyCode == ' '){
    if(bullets.size() < 9){
       bullets.add(p.fire());
+      bulletNoise.play();
     }
   }
+}
 }
