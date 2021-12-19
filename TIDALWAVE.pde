@@ -352,7 +352,7 @@ void draw() {
   if(screen == 0){
    cursor(player);
     image(loadImage("images/tidalTitle.png"),0,0);
-   // rect(190*1.25,230*1.25,190*1.25,45*1.25); // for start
+    //rect(190*1.25, 230*1.25, 190*1.25, 45*1.25); // for start
   }
   if(screen == 1 ){ //checks what screen we are on, 0 is title screen
     if(p.isAlive()){
@@ -379,7 +379,7 @@ void draw() {
     fill(0);
     stroke(5);
     fill(255);
-    textFont(createFont("Arial",16,true), 30);
+    textFont(createFont("Minecraft.ttf",16,true), 30);
     text("Score: " + str(score), 3*width/4, 30);
 
     if(radDebug){       //this section is to debug hitboxes, draws them for refrence
@@ -419,22 +419,14 @@ void draw() {
 
 }
 
-
-//we need to make the game a sidescroller.
- //todo: freeze crab in middle of screen
-   //if crab reaches edge, no longer frozen
-   //also need to make the image move as crab moves.
-   //if crab xPos||ypos < 162 or crab x/y pos > 837, no more scrolling and crab can break from center screen
-   //screen is 1000X1000 and we only see 333x333 pix at time.means 9 total seprate screens
-  //need to stop enemies from bouncing off screen-- create new screen thing
-  public void scroll(){
+ public void scroll(){
 
   }
 void mouseClicked(){
 //changes depending on screen
   if(screen == 0){
     //check mouse x and y to see if they're in bounds of play button
-    if(mouseX >190*1.25 && mouseX <190*1.25+190*1.25){
+    if(mouseX >190*1.25 && mouseX <190*1.25*2){
       if(mouseY >230*1.25 && mouseX <230*1.25+45*1.25){
         screen = 1;
       }
@@ -452,51 +444,9 @@ void mouseClicked(){
 
 }
 void keyPressed() {
-  /*
-  if(key == 'w' || key == 'W')
-  {
-    p.setVel(new Vec2(p.getVel().x, -450));
-  }
-  if(key == 's' || key == 'S')
-  {
-    p.setVel(new Vec2(p.getVel().x, 450));
-  }
-  if(key == 'a' || key == 'A')
-  {
-    p.setVel(new Vec2(-450, p.getVel().y));
-  }
-  if(key == 'd' || key == 'D')
-  {
-    p.setVel(new Vec2(450, p.getVel().y));
-  }
-    */
   if(keyCode == ' '){
-   /* timeCurr = millis();        //time delay was a pain,maybe fix later?
-    float elapsed = timeCurr-timePrev;
-    timePrev = millis(); */
-    if(bullets.size() < 9){// && elapsed>300){
+   if(bullets.size() < 9){
       bullets.add(p.fire());
     }
   }
-}
-
-void keyReleased() {
-  /*
-  if(key == 'w' || key == 'W')
-  {
-    p.setVel(new Vec2(p.getVel().x, 0));
-  }
-  if(key == 's' || key == 'S')
-  {
-    p.setVel(new Vec2(p.getVel().x, 0));
-  }
-  if(key == 'a' || key == 'A')
-  {
-    p.setVel(new Vec2(0, p.getVel().y));
-  }
-  if(key == 'd' || key == 'D')
-  {
-    p.setVel(new Vec2(0, p.getVel().y));
-  }
-  */
 }
