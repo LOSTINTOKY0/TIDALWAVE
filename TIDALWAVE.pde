@@ -13,7 +13,7 @@
 //make highscore int and such
 //wait to spawn enemies so player isn't instantly flooded
 //add scrolling mechanics to screen -- need larger image
-PImage bkg, player, goldfish, bullet;
+PImage bkg, player, goldfish, bullet,rules;
 
 
 
@@ -63,6 +63,8 @@ void setup() {
   bkg = loadImage("images/scene.png");
   player = loadImage("images/crab.png");
   bullet = loadImage("images/claw.png");
+  rules = loadImage("images/rulesScreen.png");
+  textFont(createFont("Minecraft.ttf",16,true), 30);
   p = new player(325,500);
   startPosX = 333;
   startPosY = 333;
@@ -147,10 +149,8 @@ public void update(){
       Vec2 pos = enemies.get(i).getPos();
       float rad = enemies.get(i).getRad();
       Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
-      print("currPos is x: " + currPos.x + " Y: " + currPos.y + "\n");
       if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
       {
-        print("POS WAS LESS or GREATER ! X: " + pos.x + " Y: " + pos.y + "\n" + "START POS WAS" + startPosX + "\n");
         enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
       enemies.get(i).flipImage();
       }
@@ -195,7 +195,6 @@ public void update(){
       Vec2 seperationForce =  boss.get(i).pos.minus(boss.get(j).pos).normalized();
       seperationForce.setToLength(200.0/pow(dist,2));
       boss.get(i).acc = boss.get(i).acc.plus(seperationForce);
-      //if (i ==0) println(acc[i].x,acc[i].y,pos[i].minus(pos[1]).length());
     }
     //Atttraction force (move towards the average position of our neighbors
     Vec2 avgPos = new Vec2(0,0);
@@ -251,17 +250,12 @@ public void update(){
     //Update Position & Velocity
     boss.get(i).pos = boss.get(i).pos.plus(boss.get(i).vel.times(dt));
     boss.get(i).vel = boss.get(i).vel.plus(boss.get(i).acc.times(dt));
-    //println(vel[i].x,vel[i].y);
-
+  
     //Max speed
     if (boss.get(i).vel.length() > speed*level){
       boss.get(i).vel = boss.get(i).vel.normalized().times(speed*level);
     }
-  /*
-      Vec2 pos = boss.get(i).getPos();
-      float rad = boss.get(i).getRad();
-      Vec2 newVel = new Vec2 (2,1);
-      boss.get(i).setVel(newVel); */
+  
 
     if(!boss.get(i).alive){
       boss.remove(i);
@@ -352,6 +346,20 @@ void draw() {
   if(screen == 0){
    cursor(player);
     image(loadImage("images/tidalTitle.png"),0,0);
+   // rect(186*1.25, 327*1.25, 195*1.25, 45*1.25); // for start
+  }else if(screen == 2){
+   cursor(player);
+    image(rules,0,0);
+    fill(255,255,255);
+    text("HOW TO PLAY ", 250, 50);
+    
+    text("use your mouse to move the crab",100, 175);
+    
+    text("press space to shoot claws", 100, 300);
+    
+    text("shoot as many fish as possible! ", 100, 425);
+    
+    text("press spacebar to return to main menu ", 100, 550);
     //rect(190*1.25, 230*1.25, 190*1.25, 45*1.25); // for start
   }
   if(screen == 1 ){ //checks what screen we are on, 0 is title screen
@@ -379,7 +387,7 @@ void draw() {
     fill(0);
     stroke(5);
     fill(255);
-    textFont(createFont("Minecraft.ttf",16,true), 30);
+   
     text("Score: " + str(score), 3*width/4, 30);
 
     if(radDebug){       //this section is to debug hitboxes, draws them for refrence
@@ -419,16 +427,18 @@ void draw() {
 
 }
 
- public void scroll(){
-
-  }
 void mouseClicked(){
 //changes depending on screen
   if(screen == 0){
     //check mouse x and y to see if they're in bounds of play button
     if(mouseX >190*1.25 && mouseX <190*1.25*2){
-      if(mouseY >230*1.25 && mouseX <230*1.25+45*1.25){
+      if(mouseY >230*1.25 && mouseY <230*1.25+45*1.25){
         screen = 1;
+      }
+    }
+     if(mouseX >186*1.25 && mouseX <195*1.25*2){
+      if(mouseY >327*1.25 && mouseY <330*1.25+45*1.25){
+        screen = 2;
       }
     }
   }
@@ -444,6 +454,11 @@ void mouseClicked(){
 
 }
 void keyPressed() {
+  if(screen == 2){
+    if(keyCode == ' '){
+    screen = 0;
+  }
+  }
   if(keyCode == ' '){
    if(bullets.size() < 9){
       bullets.add(p.fire());
