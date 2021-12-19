@@ -3,8 +3,12 @@ public class player extends object{
 
   boolean isInvincible;
   float speed = .05;
-String img2;
-int time = 0;
+  String img2;
+  int time = 0;
+  boolean doubleShot = false;
+  boolean backShot = false;
+  boolean spreadShot = false;
+  
   player()
   {
     super();
@@ -48,6 +52,19 @@ int time = 0;
      pos.x += vel.x; //mouseX-16*3;
      pos.y += vel.y; //mouseY-16*3;
   }
+  
+  public void hit(){
+    if(health >1){
+      health --;
+      removePowers();
+    }
+    else
+    {
+      die();
+    }
+  }
+  
+  
   public String getImage() {
     if(frame == 1){
       return img;
@@ -72,13 +89,42 @@ int time = 0;
   public void reset(){
     p.health = 3;
     p.alive = true;
+    doubleShot = false;
+    backShot = false;
+    spreadShot = false;
   }
-  public bullet fire()
+  public ArrayList<bullet> fire()
   {
     //create bullet(s?) from angle of crab claw(s)
+    ArrayList<bullet> shots = new ArrayList<bullet>();
     bullet b = new bullet(pos.x+72, pos.y+21); //offset so it fires from right claw
-    return b;
+    shots.add(b);
+    if (spreadShot) {
+      shots.add(new bullet(pos.x+72, pos.y+21, new Vec2(500*sin(30*180/PI),500*cos(30*180/PI))));
+      shots.add(new bullet(pos.x+72, pos.y+21, new Vec2(500*sin(-30*180/PI),500*cos(30*180/PI))));
+    }
+    if (doubleShot) {
+      shots.add(new bullet(pos.x, pos.y+21));
+      if (spreadShot) {
+        shots.add(new bullet(pos.x, pos.y+21, new Vec2(500*sin(30*180/PI),500*cos(30*180/PI))));
+        shots.add(new bullet(pos.x, pos.y+21, new Vec2(500*sin(-30*180/PI),500*cos(30*180/PI))));
+      }
+    }
+    if (backShot) {
+      shots.add(new bullet(pos.x+72, pos.y+21, new Vec2(0, 500)));
+      if (doubleShot) {
+        shots.add(new bullet(pos.x, pos.y+21, new Vec2(0, 500)));
+      }
+    }
+    
+    return shots;
   } //shoot claws
+  
+  public void removePowers() {
+    doubleShot = false;
+    backShot = false;
+    spreadShot = false;
+  }
 
   public boolean isAlive(){return alive;}
 
