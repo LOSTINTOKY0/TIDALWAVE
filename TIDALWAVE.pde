@@ -1,3 +1,4 @@
+ import processing.sound.*;
 //beginning of swarmshot
 //maybe needs new name- TIDALWAVE?
 
@@ -15,6 +16,8 @@
 //add scrolling mechanics to screen -- need larger image
 PImage bkg, player, goldfish, bullet,rules;
 
+  SoundFile file;
+  String audioName = "crabRave.wav";
 
 
 
@@ -68,6 +71,8 @@ void setup() {
   p = new player(325,500);
   startPosX = 333;
   startPosY = 333;
+    file = new SoundFile(this,audioName);
+    file.play();
 
 }
 
@@ -147,12 +152,21 @@ public void update(){
     }
 
       Vec2 pos = enemies.get(i).getPos();
-      //float rad = enemies.get(i).getRad();
+      float rad = enemies.get(i).getRad();
       Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
       if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
       {
         enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
       enemies.get(i).flipImage();
+      if(currPos.x >1355){
+      enemies.get(i).setPos(new Vec2(1335-startPosX -rad*2, enemies.get(i).getPos().y));
+      }else if(currPos.x <0){
+      enemies.get(i).setPos(new Vec2(-startPosX + rad*2, enemies.get(i).getPos().y));
+      }else if(currPos.y >1355){
+      enemies.get(i).setPos(new Vec2(enemies.get(i).getPos().x, 1335-startPosY + rad*2));
+      }else if(currPos.y <0){
+      enemies.get(i).setPos(new Vec2(enemies.get(i).getPos().x, -startPosY + rad*2));
+      }
       }
 
   enemies.get(i).update();
@@ -262,12 +276,31 @@ public void update(){
       return;
     }
     //check if it reaches an edge
-    if(boss.get(i).pos.x >trueScreen - boss.get(i).radius*2 ||boss.get(i).pos.x<0 || boss.get(i).pos.y >trueScreen || boss.get(i).pos.y<0) //check if in bounds, if out of screen bounds then negate direction
+   /* if(boss.get(i).pos.x >trueScreen - boss.get(i).radius*2 ||boss.get(i).pos.x<0 || boss.get(i).pos.y >trueScreen || boss.get(i).pos.y<0) //check if in bounds, if out of screen bounds then negate direction
     {
       boss.get(i).setVel(boss.get(i).getVel().times(-1));
-    }
+    } */
+    
+      Vec2 pos = boss.get(i).getPos();
+      float rad = boss.get(i).getRad();
+     Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      {
+       // boss.get(i).setVel(boss.get(i).getVel().times(-1));
+     // boss.get(i).flipImage();
+      
+      if(currPos.x >1355){
+      boss.get(i).setPos(new Vec2(1416-startPosX -rad*12, boss.get(i).getPos().y));
+      }else if(currPos.x <0){
+      boss.get(i).setPos(new Vec2(0-startPosX + rad*12, boss.get(i).getPos().y));
+      }else if(currPos.y >1355){
+      boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 1416-startPosY - rad*12));
+      }else if(currPos.y <0){
+      boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 0-startPosY +rad*12));
+      }
+      }
   boss.get(i).update();
-  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.24))));
+  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.23))));
 
   }
   }
@@ -344,11 +377,11 @@ void draw() {
   movePhysics(1/frameRate);
 
   if(screen == 0){
-   cursor(player);
+   cursor(bullet);
     image(loadImage("images/tidalTitle.png"),0,0);
    // rect(186*1.25, 327*1.25, 195*1.25, 45*1.25); // for start
   }else if(screen == 2){
-   cursor(player);
+   cursor(bullet);
     image(rules,0,0);
     fill(255,255,255);
     text("HOW TO PLAY ", 250, 50);
@@ -373,10 +406,10 @@ void draw() {
       image(bullet, bullets.get(i).pos.x, bullets.get(i).pos.y);
      }
     for(int i = 0; i <enemies.size(); i++){    //draw enemies
-      image(loadImage(enemies.get(i).getImage()), enemies.get(i).pos.x, enemies.get(i).pos.y, enemies.get(i).radius*3,enemies.get(i).radius*3);
+      image(loadImage(enemies.get(i).getImage()), enemies.get(i).pos.x, enemies.get(i).pos.y);// enemies.get(i).radius*3,enemies.get(i).radius*3);
     }
     for(int i = 0; i <boss.size(); i++){    //draw boss figures
-      image(loadImage(boss.get(i).getImage()), boss.get(i).pos.x, boss.get(i).pos.y, boss.get(i).radius*3,boss.get(i).radius*3);
+      image(loadImage(boss.get(i).getImage()), boss.get(i).pos.x, boss.get(i).pos.y, boss.get(i).radius*12,boss.get(i).radius*12);
     }
     for(int i = 0; i<p.health; i++){
       image(bullet, 10+i*30, 10);
@@ -417,7 +450,7 @@ void draw() {
     if(!p.isAlive()){  //switch to gameoverScreen
       screen = 4; //gameover screen
     image(loadImage("images/dedScreen.png"),0,0);
-    cursor(player);
+    cursor(bullet);
     }
   }
 
