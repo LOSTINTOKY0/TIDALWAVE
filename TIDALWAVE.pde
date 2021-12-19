@@ -17,8 +17,8 @@ PImage bkg,player, goldfish, bullet;
 
 
 float level = 1;
-
-float dt = 0.1;
+boolean updateSpeed;
+float dt = 1/frameRate;
 int count;
 int boss_bool = 0;
 
@@ -32,12 +32,14 @@ float speed = 2;
 float targetSpeed = 7;
 float maxForce = 10;
 
-float max_enemies = 5;
-
+float max_enemies = 10;
+int startPosX,startPosY;
 
 static int screenX = 750;  //x and y of background 
 static int screenY = 750;
-player p = new player();
+int trueScreen = 2250; //image is a cube, 2250x 2250 y
+int screenPosX, screenPosY; //keeps track of the top left corner of screen
+player p;// = new player();
 ArrayList<bullet> bullets = new ArrayList<bullet>();  //need way to keep track of bullets
 ArrayList<enemy> enemies = new ArrayList<enemy>();  //need way to keep track of enemies
 ArrayList<boss> boss = new ArrayList<boss>();  //need way to keep track of bosses
@@ -52,10 +54,13 @@ void settings()
   size(screenX,screenY);
 }
 void setup() {
-  bkg = loadImage("images/background.png");
+  bkg = loadImage("images/scene.png");
   player = loadImage("images/crab.png");
   bullet = loadImage("images/claw.png");
-  p.setPos(new Vec2(325,325));
+  p = new player(325,500);
+  startPosX = 333;
+  startPosY = 333;
+  
 }
 
 
@@ -86,8 +91,27 @@ public void update(){
   //max_enemies *= level;
   //numBoss *= level;
   isColliding();
-  p.update();
-
+    p.update();
+    startPosX += (int) (p.getVel().x*1.3);  //helps with screen scrolling
+    startPosY += (int) (p.getVel().y*1.3);
+    updateSpeed = true;
+    if(startPosX <0)
+    {
+      updateSpeed = false;
+    startPosX = 0;
+    }else if(startPosX >1000-333)
+    {
+      updateSpeed = false;
+    startPosX = 1000-333;
+    } if(startPosY <0)
+    {
+      updateSpeed = false;
+    startPosY = 0;
+    }else if(startPosY >1000-333)
+    {
+      updateSpeed = false;
+    startPosY = 1000-333;
+    }
   if (boss.size() < 1){
     boss_bool = 0;
     }
@@ -116,12 +140,18 @@ public void update(){
     
       Vec2 pos = enemies.get(i).getPos(); 
       float rad = enemies.get(i).getRad();
-      if(pos.x >screenX - rad*2 ||pos.x<0 || pos.y >screenY || pos.y<0) //check if in bounds, if out of screen bounds then negate direction
+      Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      print("currPos is x: " + currPos.x + " Y: " + currPos.y + "\n");
+      if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
       {
+        print("POS WAS LESS or GREATER ! X: " + pos.x + " Y: " + pos.y + "\n" + "START POS WAS" + startPosX + "\n");
         enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
       enemies.get(i).flipImage();
       }
+      
   enemies.get(i).update();
+     if(updateSpeed){ enemies.get(i).setPos(enemies.get(i).getPos().minus((p.getVel().times(2.24))));}
+  
   }
   }
   if(bullets.size() >0){  //each update check if bullet has died or is off screen.
@@ -131,15 +161,19 @@ public void update(){
     }
     else{
       Vec2 pos = bullets.get(i).getPos();      
-      if(pos.x >screenX  ||pos.x<0 || pos.y >screenY || pos.y<0){ //check if in bounds
+      if(pos.x >1416  ||pos.x<0 || pos.y >1416 || pos.y<0){ //check if in bounds
         bullets.remove(i);
       }
       else{
         bullets.get(i).update();
-      }
+        if(updateSpeed){bullets.get(i).setPos( bullets.get(i).getPos().minus((p.getVel().times(2.24))));
+     }
+          }
     }
   }
 }
+
+
 ///////////////// THIS IS WHERE ENTIRE BOIDS ALGORITHM GETS IMPLEMENTED ////////////////////
   if(boss.size() >0){
   for(int i = 0; i< boss.size(); i ++){
@@ -228,7 +262,7 @@ public void update(){
       return;
     }
     //check if it reaches an edge 
-    if(boss.get(i).pos.x >screenX - boss.get(i).radius*2 ||boss.get(i).pos.x<0 || boss.get(i).pos.y >screenY || boss.get(i).pos.y<0) //check if in bounds, if out of screen bounds then negate direction
+    if(boss.get(i).pos.x >trueScreen - boss.get(i).radius*2 ||boss.get(i).pos.x<0 || boss.get(i).pos.y >trueScreen || boss.get(i).pos.y<0) //check if in bounds, if out of screen bounds then negate direction
     {
       boss.get(i).setVel(boss.get(i).getVel().times(-1)); 
     } 
@@ -293,11 +327,11 @@ for(int i = 0; i< boss.size(); i++){       //loop through all boss
 }//end of isColliding
 
 
-
 void draw() {
-  cursor(player);
+ 
+  //cursor(player);
   if(screen == 0){
-    
+     cursor(player);
     image(loadImage("images/tidalTitle.png"),0,0);
    // rect(190*1.25,230*1.25,190*1.25,45*1.25); // for start
     
@@ -305,8 +339,11 @@ void draw() {
   }
   if(screen == 1 ){ //checks what screen we are on, 0 is title screen
     if(p.isAlive()){
+      noCursor();
        update(); //called every time so we have right positions for everything
-    image(bkg, 0, 0); //draw background
+    image(bkg, 0, 0, 750, 750, startPosX, startPosY, startPosX+333, startPosY+333);
+    //print("pos of screen X is " + startPosX + "Pos of screen Y is " + startPosY + "\n");
+    //image(bkg, 0, 0); //draw background
     for(int i = 0; i <bullets.size(); i++){     //draw bullets
       image(bullet, bullets.get(i).pos.x, bullets.get(i).pos.y);
      }
@@ -340,15 +377,29 @@ void draw() {
        circle(bPos.x + bRad, bPos.y + bRad, bRad*2);
       }
      } //end of hitbox debug
+     
+    image(player, p.getPos().x, p.getPos().y);
     }
     if(!p.isAlive()){  //switch to gameoverScreen
       screen = 4; //gameover screen
     image(loadImage("images/dedScreen.png"),0,0);
+    cursor(player);
     }
   }
  
-  
 }
+
+
+//we need to make the game a sidescroller. 
+ //todo: freeze crab in middle of screen
+   //if crab reaches edge, no longer frozen
+   //also need to make the image move as crab moves. 
+   //if crab xPos||ypos < 162 or crab x/y pos > 837, no more scrolling and crab can break from center screen
+   //screen is 1000X1000 and we only see 333x333 pix at time.means 9 total seprate screens  
+  //need to stop enemies from bouncing off screen-- create new screen thing
+  public void scroll(){
+  
+  } 
 void mouseClicked(){
 //changes depending on screen
   if(screen == 0){
@@ -371,30 +422,8 @@ void mouseClicked(){
 
 }
 void keyPressed() {
- /* Vec2 pos = p.getPos();      //i decided that i didn't like the wsad controls at ALL so i switched to mouse
-  Vec2 vel = p.getVel();
-    if(key == 'w')
-    {
-    p.setPos(pos.x, pos.y - vel.y);
-    }
-    if(key == 's')
-    {
-      p.setPos(pos.x, pos.y + vel.y);
-    }
-    if(key == 'a')
-    {
-      p.setPos(pos.x - vel.x, pos.y );
-    }
-     if(key == 'd')
-    {
-      p.setPos(pos.x +vel.x, pos.y );
-    }*/
     if(keyCode == ' '){
-     /* timeCurr = millis();        //time delay was a pain,maybe fix later?
-      float elapsed = timeCurr-timePrev;
-      timePrev = millis(); */
-      if(bullets.size() < 9){// && elapsed>300){
-        
+      if(bullets.size() < 9){
       bullets.add(p.fire());
       }
     }
