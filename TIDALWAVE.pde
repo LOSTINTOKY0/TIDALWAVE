@@ -147,7 +147,7 @@ public void update(){
     }
 
       Vec2 pos = enemies.get(i).getPos();
-      float rad = enemies.get(i).getRad();
+      //float rad = enemies.get(i).getRad();
       Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
       if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
       {
@@ -412,7 +412,7 @@ void draw() {
       }
      } //end of hitbox debug
 
-    image(player, p.getPos().x, p.getPos().y);
+    image(loadImage(p.getImage()), p.getPos().x, p.getPos().y);
     }
     if(!p.isAlive()){  //switch to gameoverScreen
       screen = 4; //gameover screen
