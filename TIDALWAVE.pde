@@ -16,18 +16,29 @@
 PImage bkg, player, goldfish, bullet;
 
 
+
 float dt = 1/frameRate;
+float level = 1;
+
 int count;
 int boss_bool = 0;
-static int numBoss = 15;
 
-float maxSpeed = 10;
+float score = 1;
+
+//static int numBoss = 5*level;
+float numBoss = 5;
+
+
+float speed = 2;
 float targetSpeed = 7;
 float maxForce = 10;
+
 
 int score = 0;
 
 Vec2 velStep = new Vec2(0,0);
+
+float max_enemies = 5;
 
 static int screenX = 750;  //x and y of background 
 static int screenY = 750;
@@ -58,43 +69,53 @@ public void spawnEnemy(){
   
  float a = random(1);
   
-  if(a<.3f && boss_bool == 0){ 
+  if(a<.3f){ 
     enemies.add(new enemy(random(700), random(700)));
  }
-  else if(a <.4f && boss_bool == 0){ 
+  else if(a <.4f){ 
      enemies.add(new squid(random(600), random(700)));    
-  }
-  //come up with better way to spawn boss rather than random
-  else if(a <.43f && boss_bool == 0){ 
-    boss_bool = 1;
-      for(int i = 0; i < 15; i++){
-       boss.add(new boss(random(30,200), random(30,200)));
-   }
   } 
   else{
-    if(boss_bool == 0){
-      enemies.add(new neonTetra(random(700),random(700)));
-    }
+     enemies.add(new neonTetra(random(700),random(700)));
   }
  
 } 
+public void spawnBoss(){
+    //come up with better way to spawn boss rather than random
+      for(int i = 0; i < (numBoss*level); i++){
+       boss.add(new boss(random(30,200), random(30,200)));
+   }
+  }
 
 public void update(){
+  //max_enemies *= level;
+  //numBoss *= level;
   isColliding();
   p.update();
 
   if (boss.size() < 1){
     boss_bool = 0;
     }
-  
-  while(enemies.size() <9 && boss.size() ==0){
+  if(boss.size() >=1){
+    boss_bool = 1;
+    }
+  if(enemies.size() < (max_enemies*level) && boss.size() ==0 && boss_bool == 0){
+    boss_bool = 1;
+    p.health = level*2;
     spawnEnemy();
+  }
+  if((score > (level*5)-1) && (boss.size() < numBoss) && boss_bool ==0){
+    spawnBoss();
+    println("level: ", level);
+    level++;
   }
   
   if(enemies.size() >0){
   for(int i = 0; i< enemies.size(); i ++){
     if(!enemies.get(i).alive){
       enemies.remove(i);
+      print(score);
+      score++;
       return;
     }
     
@@ -198,8 +219,8 @@ public void update(){
     //println(vel[i].x,vel[i].y);
     
     //Max speed
-    if (boss.get(i).vel.length() > maxSpeed){
-      boss.get(i).vel = boss.get(i).vel.normalized().times(maxSpeed);
+    if (boss.get(i).vel.length() > speed*level){
+      boss.get(i).vel = boss.get(i).vel.normalized().times(speed*level);
     }
   /*
       Vec2 pos = boss.get(i).getPos(); 
@@ -367,6 +388,8 @@ void mouseClicked(){
   if(screen == 4){  //click to return to main screen
     screen = 0;
     p.reset();
+    level = 1;
+    score = 1;
     enemies.clear();
     bullets.clear();
     boss.clear();
