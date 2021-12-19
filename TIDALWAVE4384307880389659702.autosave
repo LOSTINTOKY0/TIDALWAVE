@@ -44,9 +44,6 @@ int score = 0;
 
 Vec2 velStep = new Vec2(0,0);
 
-ArrayList<Vec2> powerUps = new ArrayList<Vec2>();;
-float powerUpBubbleRadius = 50;
-
 float max_enemies = 5;
 int startPosX,startPosY;
 static int screenX = 750;  //x and y of background
@@ -126,8 +123,6 @@ public void update(){
         file.amp(.3);
         start = millis()+ 28900;
   }
-  
-  
  
   isColliding();
     p.update();
@@ -165,21 +160,18 @@ public void update(){
     spawnBoss();
     println("level: ", level);
     level++;
-    p.health += level;
-    powerUps.add(new Vec2(random(100, 1255),random(100, 1255)).minus((new Vec2(startPosX, startPosY)).times(2.24))); 
+     p.health += level;
   }
-  
-  for (int i = 0; i < powerUps.size(); i++) {
-    powerUps.get(i).minus(p.getVel().times(2.24));
-  }
-  
+
   if(enemies.size() >0){
   for(int i = 0; i< enemies.size(); i ++){
     if(!enemies.get(i).alive){
       enemies.remove(i);
+      //print(score);
+      //score++;
       return;
     }
-   
+    
    
   
 
@@ -484,7 +476,8 @@ public void isColliding(){ //check collisions
        enemies.get(i).hit();
        p.hit();
     }
-    
+
+
     for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
       Vec2 bPos = bullets.get(j).getPos();
       float bRad = bullets.get(j).getRad();
@@ -496,24 +489,6 @@ public void isColliding(){ //check collisions
       }
     }
   }//end of bullet check
-  
-  for (int i = 0; i < powerUps.size(); i++) {     // loop through all powerUps 
-      if (powerUps.get(i).distanceTo(p.getPos()) < powerUpBubbleRadius) {
-        int randomPower = floor(random(0,3));
-        if (randomPower == 0) {
-          p.doubleShot = true;
-        }
-        if (randomPower == 1) {
-          p.backShot = true;
-        }
-        if (randomPower == 2) {
-          p.spreadShot = true;
-        }
-        powerUps.remove(i);
-        break;
-      }
-  }
-  
    for(int i = 0; i< tetras.size(); i++){       //loop through all tetras
     float eRad = tetras.get(i).getRad();
     Vec2 ePos = tetras.get(i).getPos();
@@ -653,13 +628,6 @@ void draw() {
     for(int i = 0; i <tetras.size(); i++){     //draw tetras
       image(loadImage(tetras.get(i).getImage()), tetras.get(i).pos.x, tetras.get(i).pos.y);
      }
-    for (int i = 0; i < powerUps.size(); i++) {
-      stroke(255, 127);
-      fill(131, 238, 255, 127);
-      circle(powerUps.get(i).x, powerUps.get(i).y, powerUpBubbleRadius);
-      fill(255, 60);
-      circle(powerUps.get(i).x-12, powerUps.get(i).y-12, 5);
-    }
     for(int i = 0; i<p.health; i++){
       image(bullet, 10+i*30, 10);
     }
@@ -766,12 +734,8 @@ void keyPressed() {
 }
   
   if(keyCode == ' '){
-   if(bullets.size() < 27){
-      ArrayList<bullet> shots = p.fire();
-      for (int i = 0; i < shots.size(); i++){
-        bullets.add(shots.get(i));
-      }
-      
+   if(bullets.size() < 9){
+      bullets.add(p.fire());
       bulletNoise.play();
     }
   }

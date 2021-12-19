@@ -31,7 +31,7 @@ public class object //base class for everything
   alive = false;
   }
   
-   public void hit(){
+  public void hit(){
     if(health >1){
       health --;
     }
