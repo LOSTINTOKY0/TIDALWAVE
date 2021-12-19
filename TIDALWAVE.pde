@@ -83,20 +83,21 @@ public void spawnEnemy(){
  float a = random(1);
 
   if(a<.3f){
-    enemies.add(new enemy(random(700), random(700)));
+    enemies.add(new enemy(random(1355-startPosX), random(1355-startPosY)));
  }
   else if(a <.4f){
-     enemies.add(new squid(random(600), random(700)));
+     enemies.add(new squid(random(1355-startPosX), random(1355-startPosY)));
   }
   else{
-     enemies.add(new neonTetra(random(700),random(700)));
+     enemies.add(new neonTetra(random(1355-startPosX),random(1355-startPosY)));
   }
 
 }
 public void spawnBoss(){
     //come up with better way to spawn boss rather than random
       for(int i = 0; i < (numBoss*level); i++){
-       boss.add(new boss(random(30,200), random(30,200)));
+       boss.add(new boss(random(-startPosX, 1355-startPosX), random(-startPosY,1355-startPosY)));
+       print(" start pos is between" + startPosX*-1 + " and " + (1355-startPosX)+"\n");
    }
   }
 
@@ -290,17 +291,17 @@ public void update(){
      // boss.get(i).flipImage();
       
       if(currPos.x >1355){
-      boss.get(i).setPos(new Vec2(1416-startPosX -rad*12, boss.get(i).getPos().y));
+      boss.get(i).setPos(new Vec2(1355-startPosX -rad*12, boss.get(i).getPos().y));
       }else if(currPos.x <0){
       boss.get(i).setPos(new Vec2(0-startPosX + rad*12, boss.get(i).getPos().y));
       }else if(currPos.y >1355){
-      boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 1416-startPosY - rad*12));
+      boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 1355-startPosY - rad*12));
       }else if(currPos.y <0){
       boss.get(i).setPos(new Vec2(boss.get(i).getPos().x, 0-startPosY +rad*12));
       }
       }
   boss.get(i).update();
-  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.23))));
+  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.242424))));
 
   }
   }
