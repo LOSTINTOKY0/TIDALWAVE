@@ -52,13 +52,14 @@ int trueScreen = 2250; //image is a cube, 2250x 2250 y
 int screenPosX, screenPosY; //keeps track of the top left corner of screen
 player p;// = new player();
 ArrayList<bullet> bullets = new ArrayList<bullet>();  //need way to keep track of bullets
+ArrayList<enemy> tetras = new ArrayList<enemy>();
 ArrayList<enemy> enemies = new ArrayList<enemy>();  //need way to keep track of enemies
 ArrayList<boss> boss = new ArrayList<boss>();  //need way to keep track of bosses
 boolean radDebug = false;
 float timeCurr;
 float timePrev;  //useful for spacing out the claw shooting things
 int screen = 0; //tells us if we're on title screen (0), how to play screen (1), credit screen(5), general game screen(2),  boss screen(3), or gameover screen(4).
-
+Vec2 prevTetraPos = new Vec2(0,0);
 
 void settings()
 {
@@ -86,14 +87,21 @@ public void spawnEnemy(){
 
  float a = random(1);
 
-  if(a<.3f){
-    enemies.add(new enemy(random(1355-startPosX), random(1355-startPosY)));
+  if(a<.2f){
+   enemies.add(new enemy(random(1355-startPosX), random(1355-startPosY)));
  }
-  else if(a <.4f){
+  else if(a <.25f){
      enemies.add(new squid(random(1355-startPosX), random(1355-startPosY)));
   }
   else{
-     enemies.add(new neonTetra(random(1355-startPosX),random(1355-startPosY)));
+    if(prevTetraPos.x==0 && prevTetraPos.y==0){
+    prevTetraPos = new Vec2(random(1355-startPosX),random(1355-startPosY));
+    }
+    //for(int i = 0; i<2; i++){
+     prevTetraPos = new Vec2(random(prevTetraPos.x-50,prevTetraPos.x),random(prevTetraPos.y-50,prevTetraPos.y));
+     tetras.add(new neonTetra(prevTetraPos.x,prevTetraPos.y));
+   // }
+    
   }
 
 }
@@ -144,7 +152,7 @@ public void update(){
   if(boss.size() >=1){
     boss_bool = 1;
     }
-  if(enemies.size() < (max_enemies*level) && boss.size() ==0 && boss_bool == 0){
+  if(enemies.size() + tetras.size()< (max_enemies*level) && boss.size() ==0 && boss_bool == 0){
     boss_bool = 1;
     spawnEnemy();
   }
@@ -163,11 +171,14 @@ public void update(){
       score++;
       return;
     }
+    
+   
+  
 
       Vec2 pos = enemies.get(i).getPos();
       float rad = enemies.get(i).getRad();
       Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
-      if(currPos.x > 1355  || currPos.x<0 || currPos.y >1355   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      if(currPos.x > 1416  || currPos.x<0 || currPos.y >1416   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
       {
         enemies.get(i).setVel(enemies.get(i).getVel().times(-1));
       enemies.get(i).flipImage();
@@ -205,7 +216,136 @@ public void update(){
     }
   }
 }
+if(tetras.size() >0){      //neon tetra equations !!!
+  Vec2 pos = tetras.get(0).getPos();
+      float rad = tetras.get(0).getRad();
+      Vec2 currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      if(currPos.x > 1416  || currPos.x<0 || currPos.y >1416   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      {
+        tetras.get(0).setVel(tetras.get(0).getVel().times(-1));
+      tetras.get(0).flipImage();
+      for(int i = 1; i<tetras.size(); i++){
+        tetras.get(i).flipImage();
+      }
+      if(currPos.x >1416){
+      tetras.get(0).setPos(new Vec2(1335-startPosX -rad*2, tetras.get(0).getPos().y));
+      }else if(currPos.x <0){
+      tetras.get(0).setPos(new Vec2(-startPosX + rad*2, tetras.get(0).getPos().y));
+      }else if(currPos.y >1416){
+      tetras.get(0).setPos(new Vec2(tetras.get(0).getPos().x, 1335-startPosY + rad*2));
+      }else if(currPos.y <0){
+      tetras.get(0).setPos(new Vec2(tetras.get(0).getPos().x, -startPosY + rad*2));
+      }
+      }
+      //updated tetras 0
+      tetras.get(0).update();
+      if(updateSpeed){tetras.get(0).setPos( tetras.get(0).getPos().minus((p.getVel().times(2.24))));
+     }
+  for(int i = 1; i< tetras.size(); i ++){
+    Vec2 zeroVec = new Vec2 (0,0);
+    tetras.get(i).setAcc(zeroVec);
 
+
+    /////////////////////////////
+    //Seperation force (push away from each neighbor if we are too close
+    for  (int j = 0; j < tetras.size(); j++){ //Go through neighbors
+      float dist = tetras.get(i).pos.distanceTo(tetras.get(j).pos);
+      if (dist < .01 || dist > 50) continue; //TODO: Why do we not need to skip i == j?
+      Vec2 seperationForce =  tetras.get(i).pos.minus(tetras.get(j).pos).normalized();
+      seperationForce.setToLength(500.0/pow(dist,1.5));
+      tetras.get(i).acc = tetras.get(i).acc.plus(seperationForce);
+    }
+    //Atttraction force (move towards the average position of our neighbors
+    Vec2 avgPos = new Vec2(0,0);
+    int count = 0;
+    for  (int j = 0; j <  tetras.size(); j++){ //Go through each neighbor
+      float dist = tetras.get(i).pos.distanceTo(tetras.get(j).pos);
+      if (dist < 60 && dist > 0){
+        avgPos.add(tetras.get(j).pos);
+        count += 1;
+      }
+    }
+    avgPos.mul(1.0/count);
+    if (count >= 1){
+      Vec2 attractionForce = avgPos.minus(tetras.get(i).pos);
+      attractionForce.normalize();
+      attractionForce.mul(1.0);
+      attractionForce.clampToLength(15);
+      tetras.get(i).acc = tetras.get(i).acc.plus(attractionForce);
+    }
+    //Alignment force
+    Vec2 avgVel = new Vec2(0,0);
+    count = 0;
+    for  (int j = 0; j <  tetras.size(); j++){ //Go through each neighbor
+      float dist = tetras.get(i).pos.minus(tetras.get(j).pos).length();
+      if (dist < 40 && dist > 0){
+        avgVel.add(tetras.get(j).vel);
+        count += 1;
+      }
+    }
+    avgVel.mul(1.0/count);
+    if (count >= 1){
+      Vec2 towards = avgVel.minus(tetras.get(i).vel);
+      towards.normalize();
+      tetras.get(i).acc = tetras.get(i).acc.plus(towards.times(2));
+    }
+    //Goal Speed
+    Vec2 mousePos = tetras.get(0).getPos();
+    Vec2 targetVel = mousePos.minus(tetras.get(i).pos);
+    targetVel.setToLength(targetSpeed);
+    Vec2 goalSpeedForce = targetVel.minus(tetras.get(i).vel);
+    goalSpeedForce.mul(1.0);
+    goalSpeedForce.clampToLength(1000);
+    tetras.get(i).acc = tetras.get(i).acc.plus(goalSpeedForce);
+
+    //Wander force
+    Vec2 randVec = new Vec2(1-random(2),1-random(2));
+    tetras.get(i).acc = tetras.get(i).acc.plus(randVec.times(10.0));
+
+    ///////////////////////////////////
+
+
+
+    //Update Position & Velocity
+    tetras.get(i).pos = tetras.get(i).pos.plus(tetras.get(i).vel.times(dt));
+    tetras.get(i).vel = tetras.get(i).vel.plus(tetras.get(i).acc.times(dt).times(1.5));
+  
+    //Max speed
+    //if (tetras.get(i).vel.length() > speed*level){
+    //  tetras.get(i).vel = tetras.get(i).vel.normalized().times(speed*level);
+   // }
+  
+
+    if(!tetras.get(i).alive){
+      tetras.remove(i);
+      return;
+    }
+ 
+    
+       pos = tetras.get(i).getPos();
+       rad = tetras.get(i).getRad();
+      currPos = new Vec2(pos.x+startPosX, pos.y + startPosY);
+      if(currPos.x > 1416  || currPos.x<0 || currPos.y >1416   || currPos.y < 0) //check if in bounds, if out of screen bounds then negate direction
+      {
+   
+      if(currPos.x >1416){
+      tetras.get(i).setPos(new Vec2(1416-startPosX -rad*12, tetras.get(i).getPos().y));
+      }else if(currPos.x <0){
+      tetras.get(i).setPos(new Vec2(0-startPosX + rad*12, tetras.get(i).getPos().y));
+      }else if(currPos.y >1416){
+      tetras.get(i).setPos(new Vec2(tetras.get(i).getPos().x, 1416-startPosY - rad*12));
+      }else if(currPos.y <0){
+      tetras.get(i).setPos(new Vec2(tetras.get(i).getPos().x, 0-startPosY +rad*12));
+      }
+      }
+  tetras.get(i).update();
+  if(updateSpeed){ tetras.get(i).setPos(tetras.get(i).getPos().minus((p.getVel().times(2.242424))));
+
+  }
+  }
+  if(!tetras.get(0).alive){
+    tetras.remove(0);
+  } }//tetras
 
 ///////////////// THIS IS WHERE ENTIRE BOIDS ALGORITHM GETS IMPLEMENTED ////////////////////
   if(boss.size() >0){
@@ -348,7 +488,31 @@ public void isColliding(){ //check collisions
         score += 10;
       }
     }
-  }
+  }//end of bullet check
+   for(int i = 0; i< tetras.size(); i++){       //loop through all tetras
+    float eRad = tetras.get(i).getRad();
+    Vec2 ePos = tetras.get(i).getPos();
+    Vec2 pPos = p.getPos();
+    float pRad = p.getRad();
+    ePos = new Vec2(ePos.x + eRad, ePos.y + eRad);
+    pPos = new Vec2(pPos.x + pRad, pPos.y + pRad);
+    if(ePos.distanceTo(pPos)<pRad+eRad){  //check if player hits any tetras
+       tetras.get(i).hit();
+       p.hit();
+    }
+
+
+    for(int j = 0; j < bullets.size(); j++){  //loop through all bullets on screen
+      Vec2 bPos = bullets.get(j).getPos();
+      float bRad = bullets.get(j).getRad();
+      bPos = new Vec2(bPos.x + bRad, bPos.y + bRad);
+      if(ePos.distanceTo(bPos)<eRad+bRad){
+        bullets.get(j).hit();
+        tetras.get(i).hit();
+        score += 10;
+      }
+    }
+  } //end of tetra check
 
   for(int i = 0; i< boss.size(); i++){       //loop through all boss
     float eRad = boss.get(i).getRad();
@@ -373,7 +537,7 @@ public void isColliding(){ //check collisions
         score += 50;
       }
     }
-  }
+  }//end of boss check
 }//end of isColliding
 
 // Runs physics operations for player and projectile movement
@@ -461,8 +625,10 @@ void draw() {
     for(int i = 0; i <boss.size(); i++){    //draw boss figures
       image(loadImage(boss.get(i).getImage()), boss.get(i).pos.x, boss.get(i).pos.y, boss.get(i).radius*12,boss.get(i).radius*12);
     }
+    for(int i = 0; i <tetras.size(); i++){     //draw tetras
+      image(loadImage(tetras.get(i).getImage()), tetras.get(i).pos.x, tetras.get(i).pos.y);
+     }
     for(int i = 0; i<p.health; i++){
-      print("health is ! " + p.health);
       image(bullet, 10+i*30, 10);
     }
 
