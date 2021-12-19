@@ -273,6 +273,9 @@ public void update(){
       boss.get(i).setVel(boss.get(i).getVel().times(-1));
     }
   boss.get(i).update();
+  if(updateSpeed){ boss.get(i).setPos(boss.get(i).getPos().minus((p.getVel().times(2.24))));
+
+  }
   }
  }
 /////////////////// SWARMING ALGORITHM FOR BOSS FINISHED HERE ////////////////////////////
@@ -410,7 +413,6 @@ void draw() {
     }
   }
 
-  //image(player, p.getPos().x, p.getPos().y);
 
 
 
