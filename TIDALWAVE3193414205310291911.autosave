@@ -166,7 +166,7 @@ public void update(){
     println("level: ", level);
     level++;
     p.health += level;
-    powerUps.add(new Vec2(random(400, 955),random(400, 955))); 
+    powerUps.add(new Vec2(random(100, 1255),random(100, 1255)).minus((new Vec2(startPosX, startPosY)).times(2.24))); 
   }
   
   for (int i = 0; i < powerUps.size(); i++) {
